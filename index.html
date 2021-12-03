@@ -51,32 +51,7 @@
 
             console.log(byCountry);
             console.log(countryCodes);
-            countryCodes.map(d => {
-                if (d.name == "Korea, Republic of") {
-                d.name = "South Korea"
-                }
-                if (d.name == "Taiwan, Province of China") {
-                d.name = "Taiwan"
-                }
-                if (d.name == "United Kingdom of Great Britain and Northern Ireland") {
-                d.name = "United Kingdom"
-                }
-                if (d.name == "United States of America") {
-                d.name = "United States"
-                }
-                if (d.name == "Viet Nam") {
-                d.name = "Vietnam"
-                }
-                if (d.name == "Russian Federation") {
-                d.name = "Russia"
-                }
-                if (d.name == "Bolivia (Plurinational State of)") {
-                d.name = "Bolivia"
-                }
-                if (d.name == "Congo, Democratic Republic of the") {
-                d.name = "Congo (Kinshasa)"
-                }
-            })
+            
             var countryHappiness = {};
             var availableCountries = [];
             var allHappiness = [];

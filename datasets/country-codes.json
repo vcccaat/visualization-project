@@ -338,7 +338,7 @@
     "intermediate-region-code": ""
   },
   {
-    "name": "Bolivia (Plurinational State of)",
+    "name": "Bolivia",
     "alpha-2": "BO",
     "alpha-3": "BOL",
     "country-code": "068",
@@ -663,7 +663,7 @@
     "intermediate-region-code": "017"
   },
   {
-    "name": "Congo, Democratic Republic of the",
+    "name": "Congo (Kinshasa)",
     "alpha-2": "CD",
     "alpha-3": "COD",
     "country-code": "180",
@@ -1547,7 +1547,7 @@
     "intermediate-region-code": ""
   },
   {
-    "name": "Korea, Republic of",
+    "name": "South Korea",
     "alpha-2": "KR",
     "alpha-3": "KOR",
     "country-code": "410",
@@ -2379,7 +2379,7 @@
     "intermediate-region-code": ""
   },
   {
-    "name": "Russian Federation",
+    "name": "Russia",
     "alpha-2": "RU",
     "alpha-3": "RUS",
     "country-code": "643",
@@ -2821,7 +2821,7 @@
     "intermediate-region-code": ""
   },
   {
-    "name": "Taiwan, Province of China",
+    "name": "Taiwan",
     "alpha-2": "TW",
     "alpha-3": "TWN",
     "country-code": "158",
@@ -3042,7 +3042,7 @@
     "intermediate-region-code": ""
   },
   {
-    "name": "United Kingdom of Great Britain and Northern Ireland",
+    "name": "United Kingdom",
     "alpha-2": "GB",
     "alpha-3": "GBR",
     "country-code": "826",
@@ -3055,7 +3055,7 @@
     "intermediate-region-code": ""
   },
   {
-    "name": "United States of America",
+    "name": "United States",
     "alpha-2": "US",
     "alpha-3": "USA",
     "country-code": "840",
@@ -3133,7 +3133,7 @@
     "intermediate-region-code": "005"
   },
   {
-    "name": "Viet Nam",
+    "name": "VietNam",
     "alpha-2": "VN",
     "alpha-3": "VNM",
     "country-code": "704",
