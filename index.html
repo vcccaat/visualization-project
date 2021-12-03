@@ -15,21 +15,55 @@
 				stroke-width: 1px;
 				fill: none;
 			}
+			.slidecontainer {
+				margin: auto;
+				width: 20%;
+				text-align: center;
+			}
+			.slider {
+				-webkit-appearance: none;
+				width: 100%;
+				height: 15px;
+				border-radius: 5px;
+				background: #d3d3d3;
+				outline: none;
+				opacity: 0.7;
+				-webkit-transition: 0.2s;
+				transition: opacity 0.2s;
+			}
+			.container {
+				text-align: center;
+				width: 50%;
+			}
 		</style>
 	</head>
 
 	<body>
-		<div id="container">
+		<div class="container">
 			<div>
 				<h2>WORLD HAPPINESS INDEX MAP</h2>
 			</div>
+			<div class="slidecontainer">
+				<input type="range" min="2015" max="2020" value="1" class="slider" id="sliderRange" />
+				<p>Year: <span id="sliderYear"></span></p>
+			</div>
+
 			<div id="mapCanvas">
-				<svg id="map" width="800" height="675"></svg>
+				<svg id="map" width="800" height="500"></svg>
 			</div>
 			<div>
 				<svg id="colorLegend" height="100" width="600" style="background: #fff; margin-top: 30px"></svg>
 			</div>
 		</div>
+		<script>
+			var slider = document.getElementById('sliderRange');
+			var output = document.getElementById('sliderYear');
+			output.innerHTML = slider.value;
+
+			slider.oninput = function () {
+				output.innerHTML = this.value;
+			};
+		</script>
 		<script>
 			const svg = d3.select('svg#map');
 			const width = parseInt(svg.attr('width'));
