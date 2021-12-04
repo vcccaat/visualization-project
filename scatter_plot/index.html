@@ -36,7 +36,7 @@
     </svg>
 
     <div id="dropdown">
-        <label for="column-select-label" id="column" style="color:black; font-weight:bold">STEP 1: Select column:
+        <label for="column-select-label" id="column" style="color:black; font-weight:bold">STEP 1: Select column to explore:
         </label>
         <br>
         <select id="column-select" style="width:200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px;">
@@ -59,6 +59,12 @@
             <option value=2018>2018</option>
             <option value=2019>2019</option>
         </select>
+    </div>
+    <div class="slidecontainer">
+        <label for="year-select-label2" id="year" style="color:black; font-weight:bold">STEP 2: Select year:
+        </label><br>
+        <input type="range" min="2015" max="2019" value="1" class="slider" id="sliderRange" />
+        Year selected: <span id="sliderYear"></span>
     </div>
 
     <div id="region-legend">
@@ -316,6 +322,13 @@
                 recoverByYear(yearSelected)
                 console.log(circles); // todo只有前128个circle有Event Listener？？？？？
             })
+            d3.select('#sliderRange').on('change', function () {
+                yearSelected = d3.select(this).property('value');
+                console.log(yearSelected);
+                d3.select('#sliderYear').text(yearSelected)
+                recoverByYear(yearSelected)
+            })
+
 
             // column selection
             d3.select('#column-select').on('change', function () {
