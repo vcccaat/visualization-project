@@ -1,204 +1,222 @@
 <!DOCTYPE html>
 <html>
+	<head>
+		<script src="https://d3js.org/d3.v7.min.js"></script>
+		<script src="https://d3js.org/topojson.v3.min.js"></script>
+		<script src="https://d3js.org/d3-collection.v1.min.js"></script>
+		<!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet"> -->
+		<style>
+			.country {
+				fill: #edf9fe;
+			}
 
-<head>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="https://d3js.org/topojson.v3.min.js"></script>
-  <script src="https://d3js.org/d3-collection.v1.min.js"></script>
-  <!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet"> -->
-  <style>
-      .country {
-      fill: #edf9fe;
-    }
+			.outline {
+				stroke: black;
+				stroke-width: 1px;
+				fill: none;
+			}
+			.slidecontainer {
+				margin: auto;
+				width: 20%;
+				text-align: center;
+			}
+			.slider {
+				-webkit-appearance: none;
+				width: 100%;
+				height: 15px;
+				border-radius: 5px;
+				background: #d3d3d3;
+				outline: none;
+				opacity: 0.7;
+				-webkit-transition: 0.2s;
+				transition: opacity 0.2s;
+			}
+			.container {
+				text-align: center;
+				width: 50%;
+			}
+		</style>
+	</head>
 
-    .outline {
-      stroke: black;
-      stroke-width: 1px;
-      fill: none;
-    }
-  </style>
-</head>
+	<body>
+		<div class="container">
+			<div>
+				<h2>WORLD HAPPINESS INDEX MAP</h2>
+			</div>
+			<div class="slidecontainer">
+				<input type="range" min="2015" max="2020" value="1" class="slider" id="sliderRange" />
+				<p>Year: <span id="sliderYear"></span></p>
+			</div>
 
-<body>
-    <div id="container">
-        <div>
-          <h2> WORLD HAPPINESS INDEX MAP </h2>
-        </div>
-        <div id="mapCanvas">
-          <svg id="map" width="800" height="675"></svg>
-        </div>
-        <div>
-            <svg id="colorLegend" height="100" width="600" style="background: #fff; margin-top:30px"></svg>
-        </div>
-    </div>
-    <script>
-        const svg = d3.select("svg#map");
-        const width = parseInt(svg.attr("width"));
-        const height = parseInt(svg.attr("height"));
-        const margin = { top: 20, right: 20, bottom: 20, left: 20 };
-        const mapWidth = width - margin.left - margin.right;
-        const mapHeight = height - margin.top - margin.bottom;
-        const map = svg.append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        const requestData = async function () {
-            const happy2015 = await d3.csv("./datasets/2015.csv");
-            const world = await d3.json("https://unpkg.com/world-atlas@1/world/110m.json");
-            const countryCodes = await d3.json("./datasets/country-codes.json");
+			<div id="mapCanvas">
+				<svg id="map" width="800" height="500"></svg>
+			</div>
+			<div>
+				<svg id="colorLegend" height="100" width="600" style="background: #fff; margin-top: 30px"></svg>
+			</div>
+		</div>
+		<script>
+			var slider = document.getElementById('sliderRange');
+			var output = document.getElementById('sliderYear');
+			output.innerHTML = slider.value;
 
-            var byCountry = d3.nest()
-                .key(d => d.Country)
-                .entries(happy2015)
+			slider.oninput = function () {
+				output.innerHTML = this.value;
+			};
+		</script>
+		<script>
+			const svg = d3.select('svg#map');
+			const width = parseInt(svg.attr('width'));
+			const height = parseInt(svg.attr('height'));
+			const margin = { top: 20, right: 20, bottom: 20, left: 20 };
+			const mapWidth = width - margin.left - margin.right;
+			const mapHeight = height - margin.top - margin.bottom;
+			const map = svg.append('g').attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+			const requestData = async function () {
+				const happy2015 = await d3.csv('./datasets/2015.csv');
+				const world = await d3.json('./datasets/world.json');
+				const countryCodes = await d3.json('./datasets/country-codes.json');
+				console.log(countryCodes);
 
-            console.log(byCountry);
-            console.log(countryCodes);
-            
-            var countryHappiness = {};
-            var availableCountries = [];
-            var allHappiness = [];
-            for (let row of happy2015) {
-                if (!(row.Country in countryHappiness)) {
-                    countryHappiness[row.Country] = [Number(row["Happiness Score"])];
-                }
-                availableCountries.push(row.Country);
-                allHappiness.push(Number(row["Happiness Score"]));
-            }
-            console.log(availableCountries);
-            
-            var CountryIds = [];
-            availableCountries.forEach(country => {
-                CountryIds.push(getCountryId(country, countryCodes))
-            });
-            var countries = topojson.feature(world, world.objects.countries);
-            countries.features = countries.features.filter(country => { return country.id !== "010" }); 
+				var countryHappiness = {};
+                var CountryIds = [];
+				var allHappiness = [];
+				for (let row of happy2015) {
+					if (!(row.Country in countryHappiness)) {
+						countryHappiness[row.Country] = Number(row['Happiness Score']);
+					}
+                    CountryIds.push(getCountryId(row.Country, countryCodes));
+					allHappiness.push(Number(row['Happiness Score']));
+				}
+				console.log(countryHappiness);
 
-            world.objects.countries.geometries = world.objects.countries.geometries.filter(country => {
-                return CountryIds.includes(country.id);
-            })
-            var countriesMesh = topojson.mesh(world, world.objects.countries);
-            var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], countries);
-            var path = d3.geoPath().projection(projection);
+				var countries = topojson.feature(world, world.objects.countries);
+				countries.features = countries.features.filter((country) => {
+					return country.id !== '010';
+				});
 
-            map.append("rect")
-                .attr("x", -margin.left)
-                .attr("y", -margin.top)
-                .attr("width", width)
-                .attr("height", height)
-                .attr("fill-opacity", 0);
+				world.objects.countries.geometries = world.objects.countries.geometries.filter((country) => {
+					return CountryIds.includes(country.id);
+				});
 
-            map.selectAll("path.country").data(countries.features)
-                .join("path")
-                .attr("class", "country")
-                .attr("d", path)
-                .on('mouseover', mouseEntersPlot)
-                .on('mouseout', mouseLeavesPlot)
+                var countriesMesh = topojson.mesh(world, world.objects.countries);
+				var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], countries);
+				var path = d3.geoPath().projection(projection);
 
-            map.append("path").datum(countriesMesh)
-                .attr("class", "outline")
-                .attr("d", path);
+				map
+                    .append('rect')
+                    .attr('x', -margin.left)
+                    .attr('y', -margin.top)
+                    .attr('width', width)
+                    .attr('height', height)
+                    .attr('fill-opacity', 0);
 
-            let tooltipWidth = 200;
-            let tooltipHeight = 100;
+				map
+					.selectAll('path.country')
+					.data(countries.features)
+					.join('path')
+					.attr('class', 'country')
+					.attr('d', path)
+					.on('mouseover', mouseEntersPlot)
+					.on('mouseout', mouseLeavesPlot);
 
-            let momesh = map.append("path")
-                .attr("class", "mouseover outline")
-                .attr("d", "");
-            
-            let tooltip = map.append("g")
-                .attr("class", "tooltip")
-                .attr("visibility", "hidden");
-            tooltip.append("rect")
-                .attr("fill", "black")
-                .attr("opacity", 0.9)
-                .attr("x", -tooltipWidth / 2.0)
-                .attr("y", 0)
-                .attr("width",tooltipWidth)
-                .attr("height",tooltipHeight)
-            let txt = tooltip.append("text")
-                .attr("class", "countryName")
-                .attr("fill", "white")
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "hanging")
-                .attr("x", 0)
-                .attr("y", 20);
-            let txt2 = tooltip.append("text")
-                .attr("class", "countryInfo")
-                .attr("fill", "white")
-                .attr("text-anchor", "middle")
-                .attr("alignment-baseline", "hanging")
-                .attr("x", 0)
-                .attr("y", 45);
+				map.append('path').datum(countriesMesh).attr('class', 'outline').attr('d', path);
 
-            // color scale
-            const colorScale = d3.scaleSequential(d3.interpolateGnBu)
-                .domain(d3.extent( Object.values(allHappiness) ))
-            
-            map.selectAll(".country")
-                .style("fill", d => {
-                let countryName = getCountryName(d.id, countryCodes);
-                if (countryHappiness[countryName]) {
-                    return colorScale(countryHappiness[countryName]);
-                }
-            });
+				let tooltipWidth = 200;
+				let tooltipHeight = 80;
 
-            d3.selectAll(".country").on("mouseenter", mouseEntersPlot);
-            d3.selectAll(".country").on("mouseout", mouseLeavesPlot);
-            
-            function mouseEntersPlot() {
-                let country = d3.select(this);
-                if (CountryIds.includes(country.datum().id)) {
-                tooltip.style("visibility", "visible");
-                country
-                    .attr("stroke", "black")
-                    .attr("stroke-width", 3)
-                    .style("opacity", 0.5)
-                }
+				let momesh = map.append('path').attr('class', 'mouseover outline').attr('d', '');
 
-                let countryID = country.datum().id;
-                let countryName = getCountryName(countryID, countryCodes);
-                txt.text(countryName);
+				let tooltip = map.append('g').attr('class', 'tooltip').attr('visibility', 'hidden');
+				tooltip
+					.append('rect')
+					.attr('fill', 'black')
+					.attr('opacity', 0.9)
+					.attr('x', -tooltipWidth / 2.0)
+					.attr('y', 0)
+					.attr('width', tooltipWidth)
+					.attr('height', tooltipHeight);
+				let txt = tooltip
+					.append('text')
+					.attr('class', 'countryName')
+					.attr('fill', 'white')
+					.attr('text-anchor', 'middle')
+					.attr('alignment-baseline', 'hanging')
+					.attr('x', 0)
+					.attr('y', 20);
+				let txt2 = tooltip
+					.append('text')
+					.attr('class', 'countryInfo')
+					.attr('fill', 'white')
+					.attr('text-anchor', 'middle')
+					.attr('alignment-baseline', 'hanging')
+					.attr('x', 0)
+					.attr('y', 45);
 
-                if (countryName in countryHappiness) {
-                txt2.text("Happiness Score: " + countryHappiness[countryName]);
-                }
-                let bounds = path.bounds(country.datum());
-                let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
-                let yPos = bounds[1][1] - 15;
-                tooltip.attr("transform", `translate(${xPos},${yPos})`);
-                var mo = topojson.mesh(world, world.objects.countries, function (a, b) { return a.id === countryID || b.id === countryID; });
-                momesh.datum(mo).attr("d", path)
-            }
+				// color scale
+				const colorScale = d3.scaleSequential(d3.interpolateGnBu).domain(d3.extent(Object.values(allHappiness)));
 
-            function mouseLeavesPlot() {
-                tooltip.style("visibility", "hidden");
-                let country = d3.select(this);
+				map.selectAll('.country').style('fill', (d) => {
+					let countryName = getCountryName(d.id, countryCodes);
+					if (countryHappiness[countryName]) {
+						return colorScale(countryHappiness[countryName]);
+					}
+				});
 
-                if (CountryIds.includes(country.datum().id)) {
-                country.attr("stroke", "black")
-                    .attr("stroke-width", 1)
-                    .style("opacity", 1)
-                }
-                momesh.attr("d", "");
-            }
+				d3.selectAll('.country').on('mouseenter', mouseEntersPlot);
+				d3.selectAll('.country').on('mouseout', mouseLeavesPlot);
 
-            function getCountryId(name, countryCodes) {
-                for (let country of countryCodes) {
-                    if (name === country["name"]) {
-                        return country["country-code"];
-                    }
-                }
-            }
+				function mouseEntersPlot() {
+					let country = d3.select(this);
+					if (CountryIds.includes(country.datum().id)) {
+						tooltip.style('visibility', 'visible');
+						country.attr('stroke', 'black').attr('stroke-width', 3).style('opacity', 0.5);
+					}
+					let countryID = country.datum().id;
+					let countryName = getCountryName(countryID, countryCodes);
+					txt.text(countryName);
+                    txt2.text('Happiness Score: ' + countryHappiness[countryName]);
+					
+                    let bounds = path.bounds(country.datum());
+                    let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+                    xPos = xPos > 580 ? 580 : xPos;
+                    let yPos = bounds[1][1] + 10;
+                    yPos = yPos > 400 ? 400 : yPos;
+                    console.log(xPos);
+                    tooltip.attr("transform", `translate(${xPos},${yPos})`);
+					var mo = topojson.mesh(world, world.objects.countries, function (a, b) {
+						return a.id === countryID || b.id === countryID;
+					});
+					momesh.datum(mo).attr('d', path);
+				}
 
-            function getCountryName(id, countryCodes) {
-                for (let country of countryCodes) {
-                    if (id === country["country-code"]) {
-                        return country.name
-                    }
-                }
-            }
-            console.log(CountryIds);
+				function mouseLeavesPlot() {
+					tooltip.style('visibility', 'hidden');
+					let country = d3.select(this);
 
-        }
-        requestData();
-    </script>
-</body>
+					if (CountryIds.includes(country.datum().id)) {
+						country.attr('stroke', 'black').attr('stroke-width', 1).style('opacity', 1);
+					}
+					momesh.attr('d', '');
+				}
+
+				function getCountryId(name, countryCodes) {
+					for (let country of countryCodes) {
+						if (name === country['name']) {
+							return country['country-code'];
+						}
+					}
+				}
+
+				function getCountryName(id, countryCodes) {
+					for (let country of countryCodes) {
+						if (id === country['country-code']) {
+							return country.name;
+						}
+					}
+				}
+			};
+			requestData();
+		</script>
+	</body>
 </html>
