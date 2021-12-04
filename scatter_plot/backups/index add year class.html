@@ -80,24 +80,21 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         let requestData = async function () {
-            // Set global variables
+            // global variables for selection
             let columnSelected = "Freedom"
-            let yearSelected = 0
+            let yearSelected = 9999
             let regionSelected = undefined
-            let circles = {}
 
-
-            // Read in dataset
             let dataOriginal = await d3.csv("./aggregated.csv", d3.autoType);
             console.log(dataOriginal);
 
-            // add initial global filter
+            // add global filter
             dataOriginal = dataOriginal.filter((d) => { return d['Region'] != null && d['Happiness Score'] != null; })
             console.log(dataOriginal);
 
             data = dataOriginal.filter((d) => { return d[columnSelected] != null; })
 
-            // X axis Extent/Scale/Axis/Grid (dynamic by data selection)
+            // X axis Extent/Scale/Grid
             let xExtent = d3.extent(data, d => d[columnSelected]);
             let xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
 
@@ -115,7 +112,7 @@
                 .attr("transform", "translate(" + margin.left + "," + (chartHeight + margin.top + 10) + ")")
                 .call(bottomGridlines);
 
-            // Y axis Extent/Scale/Axis/Grid (fixed)
+            // Y axis Extent/Scale/Grid
             const yExtent = d3.extent(data, d => d['Happiness Score']); // hapiness score
             const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0]);
 
@@ -153,17 +150,18 @@
                     .style('color', regionScale(d))
                     .style('font-weight', 'bold')
                     .on("mouseover", function () {
-                        updateDataPoints(d, yearSelected);
+                        circles = updateDataPoints(d, yearSelected);
                     })
                     .on("mouseout", function () {
-                        recoverByYear(yearSelected);
+                        circles = recoverByYear(yearSelected);
                     })
             });
 
-            // draw data points by defalut year
-            recoverByYear(0)
+            // draw data points 
+            // N.B. !!!Remember to reset circles after each update, because mouse over actions target at circles
+            let circles = recoverByYear(9999)
 
-            // hover over data points styles and actions
+            // hover over data points
             const mouseover = svg.append("g").attr("class", "mouseover")
                 .attr("transform", `translate(${margin.left + chartWidth + 15},${margin.top + 15})`);
             function stringLen(str) {
@@ -180,40 +178,17 @@
             const textbox = mouseover.append("g").attr("transform", "translate(10,10)");
             const format1 = d3.format(',d');
 
-            updateCircleHover()
+            circles.on("mouseover", function () {
 
-            // update hover event listeners for updated 'circles'
-            function updateCircleHover() {
-                circles.on("mouseover", function () {
-                    let selection = d3.select(this)
-                    mouseOverDataPoint(selection)
-                });
-
-                circles.on("mouseout", function () {
-                    let selection = d3.select(this)
-                    mouseOutDataPoint(selection)
-                });
-            }
-
-            function mouseOutDataPoint(circleSelected) {
-                circleSelected.transition().duration(200)
-                    .attr("stroke-width", 1)
-                    .attr("stroke", "none")
-                textbox.attr("visibility", "hidden")
-                frame.attr("visibility", "hidden")
-            }
-
-            function mouseOverDataPoint(circleSelected) {
                 textbox.attr("visibility", "");
                 frame.attr("visibility", "");
 
-                circleSelected.transition().duration(200)
+                d3.select(this)
+                    .transition().duration(200)
                     .attr("stroke-width", 4)
                     .attr("stroke", "black")
 
-                let d = circleSelected.datum()
-
-                console.log(d);
+                let d = d3.select(this).datum()
 
                 textbox.html('');
 
@@ -248,17 +223,26 @@
                     .attr("x", 0).attr("y", 150);
                 textbox.append("text").text(support)
                     .attr("x", 0).attr("y", 170);
-            }
+            });
 
-            // Select data using drop down menu & hover over legend)
-            // Only show data points with certain YEAR & REGION
+            circles.on("mouseout", function () {
+                d3.select(this)
+                    .transition().duration(200)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "none")
+                textbox.attr("visibility", "hidden")
+                frame.attr("visibility", "hidden")
+            });
+
+            // Data selection action (drop down menu & hover over legend)
+            // Only show data points with certain REGION and YEAR
             function updateDataPoints(region, year) {
                 yearSelected = year;
                 console.log("updateDataPoints()", columnSelected, yearSelected);
                 // reduce opacity for all circles
-                chartArea.selectAll("circle").data(data)
+                circles = chartArea.selectAll("circle").data(data)
                     .join("circle")
-                    .attr('class', d => d['Region'])
+                    .attr('class', d => d['Region'] + " 9999 " + d['year'])
                     .attr("cx", d => xScale(d[columnSelected]))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
@@ -266,7 +250,7 @@
                     .attr("opacity", 0.1);
 
                 // add opacity for certain circle with spec
-                if (yearSelected == 0)
+                if (yearSelected == 9999)
                     dataByYear = data
                 else
                     dataByYear = data.filter((d) => { return d['year'] == yearSelected })
@@ -276,57 +260,86 @@
                 else
                     dataByYearRegion = dataByYear.filter((d) => { return d['Region'] == region })
 
-                circles = chartArea.selectAll("region").data(dataByYearRegion)
+                let circlesByYearRegion = chartArea.selectAll("region").data(dataByYearRegion)
                     .join("circle")
-                    .attr('class', d => d['Region'])
+                    .attr('class', d => d['Region'] + " 9999 " + d['year'])
                     .attr("cx", d => xScale(d[columnSelected]))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
                     .attr("opacity", 1);
 
-                updateCircleHover()
+                return circlesByYearRegion
+
             }
 
+
+            // todo: fix bug: ~~STEP 2: Select year:'2015'-->'ShowAllYear'，会无法hover 数据点~~
             // Show data points with certain year
             function recoverByYear(year) {
                 console.log("recoverByYear()", columnSelected, yearSelected);
                 yearSelected = year
 
-                let updatedData = data
-                if (yearSelected != 0)
-                    updatedData = data.filter((d) => { return d['year'] == yearSelected })
-
-                circles = chartArea.selectAll("circle").data(updatedData)
+                // reduce opacity for all circles
+                let allCircles = chartArea.selectAll("circle").data(data)
                     .join("circle")
-                    .attr('class', d => d['Region'])
+                    .attr('class', d => d['Region'] + " 9999 " + d['year'])
                     .attr("cx", d => xScale(d[columnSelected]))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
-                    .attr("opacity", 0.9);
+                    .attr("opacity", 0.1);
 
-                updateCircleHover()
+                let newData = data
+                if (yearSelected == 9999) {
+                    // newData = data.filter((d) => { return d['year'] == 2015 || d['year'] == 2016 || d['year'] == 2017 || d['year'] == 2018 || d['year'] == 2019 })
+                    newData = newData
+                    // console.log(newData);
+                    let circlesByYear = chartArea.selectAll("circle").data(data)
+                        .join("circle")
+                        .attr('class', d => d['Region'] + " 9999 " + d['year'])
+                        .attr("cx", d => xScale(d[columnSelected]))
+                        .attr("cy", d => yScale(d['Happiness Score']))
+                        .attr("r", 4)
+                        .style("fill", d => regionScale(d['Region']))
+                        .attr("opacity", 0.1);
+                    return circlesByYear    
+                } else {
+                    newData = data.filter((d) => { return d['year'] == yearSelected })
+                    let circlesByYear = chartArea.selectAll(year).data(newData)
+                        .join("circle")
+                        .attr('class', d => d['Region'] + " 9999 " + d['year'])
+                        .attr("cx", d => xScale(d[columnSelected]))
+                        .attr("cy", d => yScale(d['Happiness Score']))
+                        .attr("r", 4)
+                        .style("fill", d => regionScale(d['Region']))
+                        .attr("opacity", 0.9);
+                    return circlesByYear
+                }
+
 
             }
 
             // year selection
             d3.select('#year-select').on('change', function () {
                 yearSelected = d3.select(this).property('value');
-                recoverByYear(yearSelected)
+                circles = recoverByYear(yearSelected)
                 console.log(circles); // todo只有前128个circle有Event Listener？？？？？
             })
 
             // column selection
             d3.select('#column-select').on('change', function () {
                 valueSelected = d3.select(this).property('value');
-                updateByColumn(valueSelected);
+                circles = updateByColumn(valueSelected);
                 console.log(circles);
             })
 
-            // only this function filter/modify 'data'
             function updateByColumn(valueSelected) {
-                // set global variable 'columnSelected'
+                // todo set year global variable and drop down menu to 'all' 
+                // 1. 保证全局变量，任意顺序切换
+                // 2. step 1 更改后，step 2 3 全部清零
+                // yearSelected = 0
+
                 if (valueSelected == 'generos') {
                     columnSelected = 'Generosity';
                 } else if (valueSelected == 'life') {
@@ -343,10 +356,7 @@
                     columnSelected = "Freedom";
                 }
                 console.log("updateByColumn()", columnSelected, yearSelected);
-
-                // filter data by 'columnSelected'
                 data = dataOriginal.filter((d) => { return d[columnSelected] != null })
-
                 // update xextent/scale/gridlines/axis
                 xExtent = d3.extent(data, d => d[columnSelected])
                 xScale.domain(xExtent);
@@ -355,10 +365,10 @@
                 bottomGridlines.scale(xScale)
                 bottomGridlinesG.transition().call(bottomGridlines)
 
-                // After data update, redraw datapoints
-                recoverByYear(yearSelected)
+                // draw data points
+                updatedCircles = recoverByYear(yearSelected)
 
-
+                return updatedCircles
             }
         }
         // call
