@@ -4,6 +4,7 @@
 		<script src="https://d3js.org/d3.v7.min.js"></script>
 		<script src="https://d3js.org/topojson.v3.min.js"></script>
 		<script src="https://d3js.org/d3-collection.v1.min.js"></script>
+		<script src="legend.js"></script>
 		<!-- <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;500;700&display=swap" rel="stylesheet"> -->
 		<style>
 			.country {
@@ -52,7 +53,7 @@
 				<svg id="map" width="800" height="500"></svg>
 			</div>
 			<div>
-				<svg id="colorLegend" height="100" width="600" style="background: #fff; margin-top: 30px"></svg>
+				<svg id="colorLegend" height="80" width="500" style="background: #fff; margin-top: 30px"></svg>
 			</div>
 		</div>
 		<script>
@@ -162,6 +163,8 @@
 						return colorScale(countryHappiness[countryName]);
 					}
 				});
+
+				drawLegend(sortedAllHappiness, d3.select('#colorLegend'), colorScale);
 
 				d3.selectAll('.country').on('mouseenter', mouseEntersPlot);
 				d3.selectAll('.country').on('mouseout', mouseLeavesPlot);

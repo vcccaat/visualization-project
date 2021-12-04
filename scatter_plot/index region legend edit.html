@@ -31,7 +31,7 @@
         Scatter Plot
     </h1>
 
-    <svg id="scatter" height="450" width="1100" style="border: 1px solid black; margin-top:50px;">
+    <svg id="scatter" height="450" width="1100" style="border: 1px solid black; margin-top:50px; ">
         <!-- <text id="data-label" text-anchor="end" alignment-baseline="hanging"></text> -->
     </svg>
 
@@ -65,7 +65,7 @@
 
         let requestData = async function () {
             let yearSelected = 0
-            let regionSelected = undefined
+
             // let data = await d3.csv("../datasets/2015.csv", d3.autoType);
             let data = await d3.csv("./aggregated.csv", d3.autoType);
             console.log(data);
@@ -119,7 +119,25 @@
                 .attr("transform", "translate(" + margin.left + "," + (chartHeight + margin.top + 10) + ")")
                 .call(bottomGridlines);
 
-            // Region legend
+            // todo Region legend
+            // let regionLegend = svg.append("g").attr("class", "legend")
+            //     .attr("transform", `translate(${margin.left + chartWidth + 15},${margin.top + 210})`)
+            //     .attr('visibility', '')
+            // const regionFrame = regionLegend.append("rect").attr("class", "regionFrame")
+            //     .attr("x", 0).attr("y", 0)
+            //     .attr("rx", 5).attr("ry", 5)
+            //     .attr("height", 210)
+            //     .attr('width', 300)
+            //     .attr('fill', 'white')
+            //     .attr("stroke-width", 1)
+            //     .attr("stroke", "black")
+            // regionLegend.append("span")
+            //     .text("region selection")
+            //     .style('display', 'inline-block')
+            //     .style('color', 'black')
+            //     .style('font-weight', 'bold')
+            //     .style('font-size', '2em')
+
             regionDomain.forEach(d => {
                 d3.select("div#region-legend")
                     .append("span")
@@ -128,16 +146,15 @@
                     .style('color', regionScale(d))
                     .style('font-weight', 'bold')
                     .on("mouseover", function () {
-                        circles = updateDataPoints(d, yearSelected);
+                        updateDataPoints(d, yearSelected)
                     })
                     .on("mouseout", function () {
-                        circles = recoverByYear(yearSelected);
+                        recoverByYear(yearSelected)
                     })
             });
 
-            // draw data points 
-            // N.B. !!!Remember to reset circles after each update, because mouse over actions target at circles
-            let circles = recoverByYear(0)
+            // draw data points
+            let circles = recoverAll()
 
             // hover over data points
             const mouseover = svg.append("g").attr("class", "mouseover")
@@ -157,7 +174,6 @@
             const format1 = d3.format(',d');
 
             circles.on("mouseover", function () {
-
                 textbox.attr("visibility", "");
                 frame.attr("visibility", "");
 
@@ -167,6 +183,7 @@
                     .attr("stroke", "black")
 
                 let d = d3.select(this).datum()
+                console.log(d);
 
                 textbox.html('');
 
@@ -180,6 +197,7 @@
                 let corruption = `Corruption Perception: ${d['Perceptions of corruption']} / 1`;
                 let support = `Social support: ${d['Social support']} / 1`;
 
+                // let maxWidth = Math.max(stringLen(countryName))
                 let maxWidth = Math.max(stringLen(countryName), stringLen(freedom), stringLen(generosity), stringLen(happScore), stringLen(life), stringLen(ladder), stringLen(gdp), stringLen(corruption), stringLen(support));
                 frame.attr("width", maxWidth + 20);
 
@@ -217,9 +235,9 @@
             function updateDataPoints(region, year) {
                 console.log(yearSelected);
                 // reduce opacity for all circles
-                circles = chartArea.selectAll("circle").data(data)
+                let plottedCircles = chartArea.selectAll("circle").data(data)
                     .join("circle")
-                    .attr('class', d => d['Region'] + " " + d['year'])
+                    .attr('class', d => d['region'])
                     .attr("cx", d => xScale(d['Freedom']))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
@@ -237,16 +255,23 @@
                 else
                     dataByYearRegion = dataByYear.filter((d) => { return d['Region'] == region })
 
-                let circlesByYearRegion = chartArea.selectAll("region").data(dataByYearRegion)
+                // let yearCircles = chartArea.selectAll(region).data(dataByYear)
+                //     .join("circle")
+                //     .attr('class', d => d['region'])
+                //     .attr("cx", d => xScale(d['Freedom']))
+                //     .attr("cy", d => yScale(d['Happiness Score']))
+                //     .attr("r", 4)
+                //     .style("fill", d => regionScale(d['Region']))
+                //     .attr("opacity", 0.5);
+
+                let yearRegionCircles = chartArea.selectAll(region).data(dataByYearRegion)
                     .join("circle")
-                    .attr('class', d => d['Region'] + " " + d['year'])
+                    .attr('class', d => d['region'])
                     .attr("cx", d => xScale(d['Freedom']))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
                     .attr("opacity", 1);
-
-                return circlesByYearRegion
 
             }
 
@@ -256,21 +281,36 @@
                 else
                     dataByYear = data.filter((d) => { return d['year'] == year })
 
-                let circlesByYear = chartArea.selectAll("circle").data(dataByYear)
+                let plottedCircles = chartArea.selectAll("circle").data(dataByYear)
                     .join("circle")
-                    .attr('class', d => d['Region'] + " " + d['year'])
+                    .attr('class', d => d['region'])
                     .attr("cx", d => xScale(d['Freedom']))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
                     .attr("opacity", 0.9);
-                return circlesByYear
+                return plottedCircles;
+            }
+
+            function recoverAll() {
+                let plottedCircles = chartArea.selectAll("circle").data(data)
+                    .join("circle")
+                    .attr('class', d => d['region'])
+                    .attr("cx", d => xScale(d['Freedom']))
+                    .attr("cy", d => yScale(d['Happiness Score']))
+                    .attr("r", 4)
+                    .style("fill", d => regionScale(d['Region']))
+                    .attr("opacity", 1);
+
+                return plottedCircles;
+
             }
 
             // year selection
             d3.select('#year-select').on('change', function () {
                 yearSelected = d3.select(this).property('value');
-                circles = recoverByYear(yearSelected)
+                updateDataPoints(undefined, yearSelected)
+
             })
         }
         // call
