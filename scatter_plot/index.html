@@ -36,8 +36,22 @@
     </svg>
 
     <div id="dropdown">
-        <label for="year-select" id="year">Year: </label>
-        <select id="year-select" style="width:200px; margin-right: 50px; margin-left: 5px; margin-top: 15px;">
+        <label for="column-select-label" id="column" style="color:black; font-weight:bold">STEP 1: Select column:
+        </label>
+        <br>
+        <select id="column-select" style="width:200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px;">
+            <option value="free" selected>Freedom</option>
+            <option value="generos">Generosity</option>
+            <option value="life">Healthy life expectancy at birth</option>
+            <option value="ladder">Life Ladder</option>
+            <option value="gdp">Log GDP per capita</option>
+            <option value="corr">Perceptions of corruption</option>
+            <option value="support">Social support</option>
+        </select>
+        <br>
+        <label for="year-select-label" id="year" style="color:black; font-weight:bold">STEP 2: Select year: </label>
+        <br>
+        <select id="year-select" style="width:200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px;">
             <option value=0 selected>Show All Years</option>
             <option value=2015>2015</option>
             <option value=2016>2016</option>
@@ -48,14 +62,16 @@
     </div>
 
     <div id="region-legend">
-        <span id="legend-title" style="color:black; font-weight:bold">Regions and their corresponding color</span>
+        <span id="legend-title" style="color:black; font-weight:bold">STEP 3: Regions and their corresponding color
+            (Hover over
+            to select)</span>
     </div>
 
     <script>
         let svg = d3.select("svg#scatter");
         let width = svg.attr("width");
         let height = svg.attr("height");
-        let margin = { top: 10, right: 300, bottom: 50, left: 50 };
+        let margin = { top: 10, right: 320, bottom: 50, left: 50 };
         let chartWidth = width - margin.left - margin.right;
         let chartHeight = height - margin.top - margin.bottom;
 
@@ -64,32 +80,42 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         let requestData = async function () {
+            // global variables for selection
+            let columnSelected = "Freedom"
             let yearSelected = 0
             let regionSelected = undefined
-            // let data = await d3.csv("../datasets/2015.csv", d3.autoType);
-            let data = await d3.csv("./aggregated.csv", d3.autoType);
-            console.log(data);
 
-            // filter null data
-            data = data.filter((d) => { return d['Freedom'] != null && d['Region'] != null && d['Happiness Score'] != null; })
-            console.log(data);
+            let dataOriginal = await d3.csv("./aggregated.csv", d3.autoType);
+            console.log(dataOriginal);
 
-            // Extent and Scale
-            const xExtent = d3.extent(data, d => d['Freedom']);
-            const xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
+            // add global filter
+            dataOriginal = dataOriginal.filter((d) => { return d['Region'] != null && d['Happiness Score'] != null; })
+            console.log(dataOriginal);
+
+            data = dataOriginal.filter((d) => { return d[columnSelected] != null; })
+
+            // X axis Extent/Scale/Grid
+            let xExtent = d3.extent(data, d => d[columnSelected]);
+            let xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
+
+            let bottomAxis = d3.axisBottom(xScale)
+                .tickFormat(d3.format("~f"));
+            let bottomGridlines = d3.axisBottom(xScale)
+                .tickSize(-chartHeight - 10)
+                .tickFormat("")
+            let bottomAxisG = annotations.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(" + margin.left + "," + (chartHeight + margin.top + 10) + ")")
+                .call(bottomAxis);
+            let bottomGridlinesG = annotations.append("g")
+                .attr("class", "x gridlines")
+                .attr("transform", "translate(" + margin.left + "," + (chartHeight + margin.top + 10) + ")")
+                .call(bottomGridlines);
+
+            // Y axis Extent/Scale/Grid
             const yExtent = d3.extent(data, d => d['Happiness Score']); // hapiness score
             const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0]);
 
-            let regionDomain = data.map((d) => { return d['Region']; })
-            regionDomain = regionDomain.filter(function (item, pos) {
-                return regionDomain.indexOf(item) == pos;
-            })
-            // console.log(regionDomain);
-            // todo: color tweaking
-            // let regionScale = d3.scaleOrdinal().domain(regionDomain).range()
-            let regionScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-            // Y axis
             let leftAxis = d3.axisLeft(yScale)
                 .tickFormat(d3.format("~f"))
             let leftGridlines = d3.axisLeft(yScale)
@@ -104,22 +130,18 @@
                 .attr("transform", "translate(" + (margin.left - 10) + "," + margin.top + ")")
                 .call(leftGridlines);
 
-            // X axis
-            let bottomAxis = d3.axisBottom(xScale)
-                .tickFormat(d3.format("~f"));
-            let bottomGridlines = d3.axisBottom(xScale)
-                .tickSize(-chartHeight - 10)
-                .tickFormat("")
-            annotations.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(" + margin.left + "," + (chartHeight + margin.top + 10) + ")")
-                .call(bottomAxis);
-            annotations.append("g")
-                .attr("class", "x gridlines")
-                .attr("transform", "translate(" + margin.left + "," + (chartHeight + margin.top + 10) + ")")
-                .call(bottomGridlines);
 
-            // Region legend
+            // 'region' Extent/Scale/Legend
+            let regionDomain = data.map((d) => { return d['Region']; })
+            regionDomain = regionDomain.filter(function (item, pos) {
+                return regionDomain.indexOf(item) == pos;
+            })
+            // console.log(regionDomain);
+            // todo: color tweaking
+            // let regionScale = d3.scaleOrdinal().domain(regionDomain).range()
+            let regionScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+            // draw Region legend
             regionDomain.forEach(d => {
                 d3.select("div#region-legend")
                     .append("span")
@@ -181,7 +203,7 @@
                 let support = `Social support: ${d['Social support']} / 1`;
 
                 let maxWidth = Math.max(stringLen(countryName), stringLen(freedom), stringLen(generosity), stringLen(happScore), stringLen(life), stringLen(ladder), stringLen(gdp), stringLen(corruption), stringLen(support));
-                frame.attr("width", maxWidth + 20);
+                frame.attr("width", maxWidth + 30);
 
                 textbox.append("text").text(countryName)
                     .attr("x", 0).attr("y", 10);
@@ -215,22 +237,23 @@
             // Data selection action (drop down menu & hover over legend)
             // reduce opacity for data points with certain REGION and YEAR
             function updateDataPoints(region, year) {
-                console.log(yearSelected);
+                yearSelected = year;
+                console.log("updateDataPoints()", columnSelected, yearSelected);
                 // reduce opacity for all circles
                 circles = chartArea.selectAll("circle").data(data)
                     .join("circle")
-                    .attr('class', d => d['Region'] + " " + d['year'])
-                    .attr("cx", d => xScale(d['Freedom']))
+                    .attr('class', d => d['Region'])
+                    .attr("cx", d => xScale(d[columnSelected]))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
                     .attr("opacity", 0.1);
 
                 // add opacity for certain circle with spec
-                if (year == 0)
+                if (yearSelected == 0)
                     dataByYear = data
                 else
-                    dataByYear = data.filter((d) => { return d['year'] == year })
+                    dataByYear = data.filter((d) => { return d['year'] == yearSelected })
 
                 if (region == null)
                     dataByYearRegion = dataByYear
@@ -239,8 +262,8 @@
 
                 let circlesByYearRegion = chartArea.selectAll("region").data(dataByYearRegion)
                     .join("circle")
-                    .attr('class', d => d['Region'] + " " + d['year'])
-                    .attr("cx", d => xScale(d['Freedom']))
+                    .attr('class', d => d['Region'])
+                    .attr("cx", d => xScale(d[columnSelected]))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
@@ -250,16 +273,24 @@
 
             }
 
-            function recoverByYear(year) {
-                if (year == 0)
-                    dataByYear = data
-                else
-                    dataByYear = data.filter((d) => { return d['year'] == year })
 
-                let circlesByYear = chartArea.selectAll("circle").data(dataByYear)
+            // todo: fix bug: ~~STEP 2: Select year:'2015'-->'ShowAllYear'，会无法hover 数据点~~
+            function recoverByYear(year) {
+                console.log("recoverByYear()", columnSelected, yearSelected);
+                yearSelected = year
+
+                let newData = data
+                if (yearSelected == 0) {
+                    newData = newData
+                    // console.log(newData);
+                } else
+                    newData = data.filter((d) => { return d['year'] == yearSelected })
+
+
+                let circlesByYear = chartArea.selectAll("circle").data(newData)
                     .join("circle")
-                    .attr('class', d => d['Region'] + " " + d['year'])
-                    .attr("cx", d => xScale(d['Freedom']))
+                    .attr('class', d => d['Region'])
+                    .attr("cx", d => xScale(d[columnSelected]))
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
@@ -271,7 +302,51 @@
             d3.select('#year-select').on('change', function () {
                 yearSelected = d3.select(this).property('value');
                 circles = recoverByYear(yearSelected)
+                console.log(circles); // 只有前128个circle有Event Listener？？？？？
             })
+
+            // column selection
+            d3.select('#column-select').on('change', function () {
+                valueSelected = d3.select(this).property('value');
+                circles = updateByColumn(valueSelected);
+            })
+
+            function updateByColumn(valueSelected) {
+                // todo set year global variable and drop down menu to 'all' 
+                // 1. 保证全局变量，任意顺序切换
+                // 2. step 1 更改后，step 2 3 全部清零
+                // yearSelected = 0
+
+                if (valueSelected == 'generos') {
+                    columnSelected = 'Generosity';
+                } else if (valueSelected == 'life') {
+                    columnSelected = 'Healthy life expectancy at birth';
+                } else if (valueSelected == 'ladder') {
+                    columnSelected = 'Life Ladder';
+                } else if (valueSelected == 'gdp') {
+                    columnSelected = 'Log GDP per capita';
+                } else if (valueSelected == 'corr') {
+                    columnSelected = 'Perceptions of corruption';
+                } else if (valueSelected == 'support') {
+                    columnSelected = 'Social support';
+                } else {
+                    columnSelected = "Freedom";
+                }
+                console.log("updateByColumn()", columnSelected, yearSelected);
+                data = dataOriginal.filter((d) => { return d[columnSelected] != null })
+                // update xextent/scale/gridlines/axis
+                xExtent = d3.extent(data, d => d[columnSelected])
+                xScale.domain(xExtent);
+                bottomAxis.scale(xScale);
+                bottomAxisG.transition().call(bottomAxis)
+                bottomGridlines.scale(xScale)
+                bottomGridlinesG.transition().call(bottomGridlines)
+
+                // draw data points
+                updatedCircles = recoverByYear(yearSelected)
+
+                return updatedCircles
+            }
         }
         // call
         requestData();
