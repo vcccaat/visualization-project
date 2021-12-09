@@ -48,7 +48,7 @@
             <option value="corr">Perceptions of corruption</option>
             <option value="support">Social support</option>
         </select>
-        <br>
+        <!-- <br>
         <label for="year-select-label" id="year" style="color:black; font-weight:bold">STEP 2: Select year: </label>
         <br>
         <select id="year-select" style="width:200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px;">
@@ -58,12 +58,12 @@
             <option value=2017>2017</option>
             <option value=2018>2018</option>
             <option value=2019>2019</option>
-        </select>
+        </select> -->
     </div>
     <div class="slidecontainer">
         <label for="year-select-label2" id="year" style="color:black; font-weight:bold">STEP 2: Select year:
         </label><br>
-        <input type="range" min="2015" max="2019" value="1" class="slider" id="sliderRange" />
+        <input type="range" min="2015" max="2019" value="2017" class="slider" id="sliderRange" />
         Year selected: <span id="sliderYear"></span>
     </div>
 
@@ -88,7 +88,7 @@
         let requestData = async function () {
             // Set global variables
             let columnSelected = "Freedom"
-            let yearSelected = 0
+            let yearSelected = 2017
             let regionSelected = undefined
             let circles = {}
 
@@ -101,7 +101,7 @@
             dataOriginal = dataOriginal.filter((d) => { return d['Region'] != null && d['Happiness Score'] != null; })
             console.log(dataOriginal);
 
-            data = dataOriginal.filter((d) => { return d[columnSelected] != null; })
+            data = dataOriginal.filter((d) => { return d[columnSelected] != null && d['Happiness Score'] != "#N/A" })
 
             // X axis Extent/Scale/Axis/Grid (dynamic by data selection)
             let xExtent = d3.extent(data, d => d[columnSelected]);
@@ -164,15 +164,20 @@
 
 
             // 'region' Extent/Scale/Legend
-            let regionDomain = data.map((d) => { return d['Region']; })
+            // let regionDomain = data.map((d) => { return d['Region']; })
+            let regionDomain = ["South Asia", "East Asia", "Southeast Asia"
+                            , "Central and Eastern Europe", "Western Europe", "Commonwealth of Independent States"
+                            , "Middle East and North Africa", "Sub-Saharan Africa"
+                            , "Latin America and Caribbean", "North America and ANZ"]
+
             regionDomain = regionDomain.filter(function (item, pos) {
                 return regionDomain.indexOf(item) == pos;
             })
-            // console.log(regionDomain);
+            console.log('regionDomain',regionDomain);
             // todo: color tweaking
             // let regionScale = d3.scaleOrdinal().domain(regionDomain).range()
-            let regionScale = d3.scaleOrdinal(d3.schemeCategory10);
-
+            // let regionScale = d3.scaleOrdinal().range(["#7400b8","#6930c3","#5e60ce","#5390d9","#4ea8de","#48bfe3","#56cfe1","#64dfdf","#72efdd","#80ffdb"]);
+            let regionScale = d3.scaleOrdinal().range([ '#f3722cff','#f3722cff','#f3722cff', '#f9c74fff', '#f9c74fff', '#f9c74fff', '#4d908eff', '#4d908eff', '#277da1ff', '#277da1ff'])
             // draw Region legend
             regionDomain.forEach(d => {
                 d3.select("div#region-legend")
@@ -190,7 +195,8 @@
             });
 
             // draw data points by defalut year
-            recoverByYear(0)
+            recoverByYear(yearSelected)
+            d3.select('#sliderYear').text(yearSelected)
 
             // hover over data points styles and actions
             const mouseover = svg.append("g").attr("class", "mouseover")
@@ -260,13 +266,13 @@
                 xMarker.attr("visibility","");
                 yMarker.attr("visibility","");
 
+                let d = circleSelected.datum()
+
                 circleSelected.transition().duration(200)
                     .attr("stroke-width", 4)
                     .attr("stroke", "black")
                     .attr('r',6)
                     .attr('opacity',1)
-
-                let d = circleSelected.datum()
 
                 console.log(d);
 
@@ -371,11 +377,11 @@
             }
 
             // year selection
-            d3.select('#year-select').on('change', function () {
-                yearSelected = d3.select(this).property('value');
-                recoverByYear(yearSelected)
-                console.log(circles); // todo只有前128个circle有Event Listener？？？？？
-            })
+            // d3.select('#year-select').on('change', function () {
+            //     yearSelected = d3.select(this).property('value');
+            //     recoverByYear(yearSelected)
+            //     console.log(circles); // todo只有前128个circle有Event Listener？？？？？
+            // })
             d3.select('#sliderRange').on('change', function () {
                 yearSelected = d3.select(this).property('value');
                 console.log(yearSelected);
