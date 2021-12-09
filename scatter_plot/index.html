@@ -208,6 +208,23 @@
                 .attr("height", 190);
             const textbox = mouseover.append("g").attr("transform", "translate(10,10)");
             const format1 = d3.format(',d');
+            let xMarker = chartArea.append("line")
+                    .attr("id","xMarker")
+                    .attr("fill","none")
+                    .attr("stroke","black")
+                    .attr("stroke-width",1)
+                    .attr("y1",0)
+                    .attr("y2",chartHeight)
+                    .attr("visibility","hidden");
+
+            let yMarker = chartArea.append("line")
+                    .attr("id","yMarker")
+                    .attr("fill","none")
+                    .attr("stroke","black")
+                    .attr("stroke-width",1)
+                    .attr("x1",0)
+                    .attr("x2",chartWidth)
+                    .attr("visibility","hidden");
 
             updateCircleHover()
 
@@ -215,6 +232,7 @@
             function updateCircleHover() {
                 circles.on("mouseover", function () {
                     let selection = d3.select(this)
+                    selection.raise()
                     mouseOverDataPoint(selection)
                 });
 
@@ -228,17 +246,25 @@
                 circleSelected.transition().duration(200)
                     .attr("stroke-width", 1)
                     .attr("stroke", "none")
+                    .attr('r',4)
+                    .attr('opacity',0.75)
                 textbox.attr("visibility", "hidden")
                 frame.attr("visibility", "hidden")
+                xMarker.attr("visibility","hidden");
+                yMarker.attr("visibility","hidden");
             }
 
             function mouseOverDataPoint(circleSelected) {
                 textbox.attr("visibility", "");
                 frame.attr("visibility", "");
+                xMarker.attr("visibility","");
+                yMarker.attr("visibility","");
 
                 circleSelected.transition().duration(200)
                     .attr("stroke-width", 4)
                     .attr("stroke", "black")
+                    .attr('r',6)
+                    .attr('opacity',1)
 
                 let d = circleSelected.datum()
 
@@ -277,6 +303,9 @@
                     .attr("x", 0).attr("y", 150);
                 textbox.append("text").text(support)
                     .attr("x", 0).attr("y", 170);
+
+                yMarker.attr("y1",yScale(d['Happiness Score'])).attr("y2",yScale(d['Happiness Score']));
+                xMarker.attr("x1",xScale(d[columnSelected])).attr("x2",xScale(d[columnSelected]));
             }
 
             // Select data using drop down menu & hover over legend)
@@ -305,6 +334,8 @@
                 else
                     dataByYearRegion = dataByYear.filter((d) => { return d['Region'] == region })
 
+                
+                
                 circles = chartArea.selectAll("region").data(dataByYearRegion)
                     .join("circle")
                     .attr('class', d => d['Region'])
@@ -333,7 +364,7 @@
                     .attr("cy", d => yScale(d['Happiness Score']))
                     .attr("r", 4)
                     .style("fill", d => regionScale(d['Region']))
-                    .attr("opacity", 0.9);
+                    .attr("opacity", 0.75);
 
                 updateCircleHover()
 
