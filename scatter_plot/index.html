@@ -1,106 +1,111 @@
-<!DOCTYPE >
+<!DOCTYPE>
 <html>
-	<head>
-		<!--Part of the code to generate grid/axis/legends/data point hover are borrowed from lecture code-->
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Scatter</title>
-		<!--- D3 IMPORT HERE --->
-		<script src="https://d3js.org/d3.v7.min.js"></script>
-		<script src="https://d3js.org/topojson.v3.min.js"></script>
-		<script src="legend.js"></script>
-		<!--- D3 IMPORT HERE --->
-		<style>
-			g.mouseover rect {
-				fill: white;
-				stroke: #222;
-				stroke-width: 1px;
-			}
 
-			g.mouseover text {
-				font-family: Arial, sans-serif;
-			}
+<head>
+	<!--Part of the code to generate grid/axis/legends/data point hover are borrowed from lecture code-->
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Scatter</title>
+	<!--- D3 IMPORT HERE --->
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+	<script src="https://d3js.org/topojson.v3.min.js"></script>
+	<script src="legend.js"></script>
+	<!--- D3 IMPORT HERE --->
+	<style>
+		g.mouseover rect {
+			fill: white;
+			stroke: #222;
+			stroke-width: 1px;
+		}
 
-			g.mouseover text:first-child {
-				font-weight: bold;
-			}
-		</style>
-		<style>
-			.country {
-				fill: #edf9fe;
-			}
+		g.mouseover text {
+			font-family: Arial, sans-serif;
+		}
 
-			.outline {
-				stroke: black;
-				stroke-width: 1px;
-				fill: none;
-			}
+		g.mouseover text:first-child {
+			font-weight: bold;
+		}
+	</style>
+	<style>
+		.country {
+			fill: #edf9fe;
+		}
 
-			.slidecontainer {
-				/* margin: auto; */
-				width: 80%;
-				/* text-align: left; */
-			}
+		.outline {
+			stroke: black;
+			stroke-width: 1px;
+			fill: none;
+		}
 
-			.slider {
-				-webkit-appearance: none;
-				width: 100%;
-				height: 15px;
-				border-radius: 5px;
-				background: #d3d3d3;
-				outline: none;
-				opacity: 0.7;
-				-webkit-transition: 0.2s;
-				transition: opacity 0.2s;
-			}
+		.slidecontainer {
+			/* margin: auto; */
+			width: 80%;
+			/* text-align: left; */
+		}
 
-			.container {
-				text-align: left;
-				display: flex;
-                justify-content: center;
-			}
-			#demo {
-				margin: auto;
-				text-align: center;
-			}
-            .customAttribute {
-                margin: 50px;
-                display: flex;
-                flex-direction: column;
-                row-gap: 20px;
-            }
-            .btn-group button {
-        background-color: rgb(228, 121, 64); 
-        border: 1px solid rgb(235, 206, 81);
-        color: white; 
-        padding: 10px 24px; 
-        cursor: pointer; 
-        float: center; 
-        margin-bottom: 20px;
-        border-radius: 10px;
-        }
+		.slider {
+			-webkit-appearance: none;
+			width: 100%;
+			height: 15px;
+			border-radius: 5px;
+			background: #d3d3d3;
+			outline: none;
+			opacity: 0.7;
+			-webkit-transition: 0.2s;
+			transition: opacity 0.2s;
+		}
 
-        .btn-group button:not(:last-child) {
-        border-right: none; /* Prevent double borders */
-        }
+		.container {
+			text-align: left;
+			display: flex;
+			justify-content: center;
+		}
 
-        .btn-group:after {
-        content: "";
-        clear: both;
-        display: table;
-        }
+		#demo {
+			margin: auto;
+			text-align: center;
+		}
 
-        .btn-group button:hover {
-        background-color: rgb(235, 206, 81);
-        }
-		</style>
-	</head>
+		.customAttribute {
+			margin: 50px;
+			display: flex;
+			flex-direction: column;
+			row-gap: 20px;
+		}
 
-	<body>
-		<div id="demo">
-			<h2>XXXXXXXXX</h2>
-            <!-- TODO: Add better looking button 
+		.btn-group button {
+			background-color: rgb(228, 121, 64);
+			border: 1px solid rgb(235, 206, 81);
+			color: white;
+			padding: 10px 24px;
+			cursor: pointer;
+			float: center;
+			margin-bottom: 20px;
+			border-radius: 10px;
+		}
+
+		.btn-group button:not(:last-child) {
+			border-right: none;
+			/* Prevent double borders */
+		}
+
+		.btn-group:after {
+			content: "";
+			clear: both;
+			display: table;
+		}
+
+		.btn-group button:hover {
+			background-color: rgb(235, 206, 81);
+		}
+	</style>
+</head>
+
+<body>
+	<div id="demo">
+		<h2>XXXXXXXXX</h2>
+		<!-- TODO: Add better looking button 
                 <div class="btn-group" >
            
                 <button value="free" onClick="selectColumn()">Freedom</button>
@@ -112,593 +117,600 @@
                 <button value="support">Social support</button>
         
               </div> -->
-			<div class="container">
-				<div class="customAttribute">
-					<div class="slidecontainer">
-						<label for="year-select-label2" id="year" style="color: black; font-weight: bold">Select Year: </label><br />
-						<input type="range" min="2015" max="2019" value="2017" class="slider" id="sliderRange" />
-						Year: <span id="sliderYear"></span>
-					</div>
-
-					<div id="dropdown">
-						<label for="column-select-label" id="column" style="color: black; font-weight: bold">Select Attributes to Compare: </label>
-						<br />
-						<select id="column-select" style="width: 200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px">
-							<option value="free" selected>Freedom</option>
-							<option value="generos">Generosity</option>
-							<option value="life">Healthy life expectancy at birth</option>
-							<option value="ladder">Life Ladder</option>
-							<option value="gdp">Log GDP per capita</option>
-							<option value="corr">Perceptions of corruption</option>
-							<option value="support">Social support</option>
-						</select>
-					</div>
-					<div id="region-legend">
-						<span id="legend-title" style="color: black; font-weight: bold">Select Regions (Hover over to select)</span>
-					</div>
+		<div class="container">
+			<div class="customAttribute">
+				<div class="slidecontainer">
+					<label for="year-select-label2" id="year" style="color: black; font-weight: bold">Select Year:
+					</label><br />
+					<input type="range" min="2015" max="2019" value="2017" class="slider" id="sliderRange" />
+					Year: <span id="sliderYear"></span>
 				</div>
-                <svg id="scatter" height="400" width="1000" style="border: 1px solid black;"></svg>
+
+				<div id="dropdown">
+					<label for="column-select-label" id="column" style="color: black; font-weight: bold">Select
+						Attributes to Compare: </label>
+					<br />
+					<select id="column-select"
+						style="width: 200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px">
+						<option value="free" selected>Freedom</option>
+						<option value="generos">Generosity</option>
+						<option value="life">Healthy life expectancy at birth</option>
+						<option value="ladder">Life Ladder</option>
+						<option value="gdp">Log GDP per capita</option>
+						<option value="corr">Perceptions of corruption</option>
+						<option value="support">Social support</option>
+					</select>
+				</div>
+				<div id="region-legend">
+					<span id="legend-title" style="color: black; font-weight: bold">Select Regions (Hover over to
+						select)</span>
+				</div>
+			</div>
+			<svg id="scatter" height="400" width="1000" style="border: 1px solid black;"></svg>
+		</div>
+		<div>
+			<h2>World Happiness Index Map</h2>
+			<div id="mapCanvas">
+				<svg id="map" width="800" height="500"></svg>
 			</div>
 			<div>
-                <h2>World Happiness Index Map</h2>
-				<div id="mapCanvas">
-					<svg id="map" width="800" height="500"></svg>
-				</div>
-				<div>
-					<svg id="colorLegend" height="80" width="500" style="background: #fff; margin-top: 30px"></svg>
-				</div>
-			
-			
-				<!-- <text id="data-label" text-anchor="end" alignment-baseline="hanging"></text> -->
+				<svg id="colorLegend" height="80" width="500" style="background: #fff; margin-top: 30px"></svg>
+			</div>
+
+
+			<!-- <text id="data-label" text-anchor="end" alignment-baseline="hanging"></text> -->
 			</svg>
-        </div>
 		</div>
+	</div>
 
-		<script>
-			let svg = d3.select('svg#scatter');
-			let width = svg.attr('width');
-			let height = svg.attr('height');
-			let margin = { top: 10, right: 300, bottom: 50, left: 50 };
-			let chartWidth = width - margin.left - margin.right;
-			let chartHeight = height - margin.top - margin.bottom;
+	<script>
+		let svg = d3.select('svg#scatter');
+		let width = svg.attr('width');
+		let height = svg.attr('height');
+		let margin = { top: 10, right: 300, bottom: 50, left: 50 };
+		let chartWidth = width - margin.left - margin.right;
+		let chartHeight = height - margin.top - margin.bottom;
 
-			let annotations = svg.append('g').attr('id', 'annotations');
-			let chartArea = svg
+		let annotations = svg.append('g').attr('id', 'annotations');
+		let chartArea = svg
+			.append('g')
+			.attr('id', 'points')
+			.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+		let requestData = async function () {
+			// Set global variables
+			let columnSelected = 'Freedom';
+			let yearSelected = 2017;
+			let regionSelected = undefined;
+			let circles = {};
+
+			// Read in dataset
+			let dataOriginal = await d3.csv('aggregated.csv', d3.autoType);
+			console.log(dataOriginal);
+
+			// add initial global filter
+			dataOriginal = dataOriginal.filter((d) => {
+				return d['Region'] != null && d['Happiness Score'] != null;
+			});
+			console.log(dataOriginal);
+
+			data = dataOriginal.filter((d) => {
+				return d[columnSelected] != null && d['Happiness Score'] != '#N/A';
+			});
+			requestData2(data);
+
+			// X axis Extent/Scale/Axis/Grid (dynamic by data selection)
+			let xExtent = d3.extent(data, (d) => d[columnSelected]);
+			let xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
+
+			let bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~f'));
+			let bottomGridlines = d3
+				.axisBottom(xScale)
+				.tickSize(-chartHeight - 10)
+				.tickFormat('');
+			let bottomAxisG = annotations
 				.append('g')
-				.attr('id', 'points')
-				.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+				.attr('class', 'x axis')
+				.attr('transform', 'translate(' + margin.left + ',' + (chartHeight + margin.top + 10) + ')')
+				.call(bottomAxis);
+			let bottomGridlinesG = annotations
+				.append('g')
+				.attr('class', 'x gridlines')
+				.attr('transform', 'translate(' + margin.left + ',' + (chartHeight + margin.top + 10) + ')')
+				.attr('color', 'lightgrey')
+				.call(bottomGridlines);
+			let bottomAxisText = annotations
+				.append('g')
+				.append('text')
+				.attr('transform', 'translate(' + chartWidth / 2 + ',' + (chartHeight + margin.bottom) + ')')
+				.attr('text-anchor', 'middle')
+				.attr('font-family', 'sans-serif')
+				.attr('font-size', 13)
+				.style('font-weight', 'bold')
+				.text(columnSelected);
 
-			let requestData = async function () {
-				// Set global variables
-				let columnSelected = 'Freedom';
-				let yearSelected = 2017;
-				let regionSelected = undefined;
-				let circles = {};
+			// Y axis Extent/Scale/Axis/Grid (fixed)
+			const yExtent = d3.extent(data, (d) => d['Happiness Score']); // hapiness score
+			const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0]);
 
-				// Read in dataset
-				let dataOriginal = await d3.csv('aggregated.csv', d3.autoType);
-				console.log(dataOriginal);
+			let leftAxis = d3.axisLeft(yScale).tickFormat(d3.format('~f'));
+			let leftGridlines = d3
+				.axisLeft(yScale)
+				.tickSize(-chartWidth - 10)
+				.tickFormat('');
+			annotations
+				.append('g')
+				.attr('class', 'y axis')
+				.attr('transform', 'translate(' + (margin.left - 10) + ',' + margin.top + ')')
+				.call(leftAxis);
+			annotations
+				.append('g')
+				.attr('class', 'y gridlines')
+				.attr('transform', 'translate(' + (margin.left - 10) + ',' + margin.top + ')')
+				.attr('color', 'lightgrey')
+				.call(leftGridlines);
+			annotations
+				.append('text')
+				.attr('class', 'y label')
+				.attr('text-anchor', 'end')
+				.attr('y', 3)
+				.attr('x', -150)
+				.attr('dy', '.75em')
+				.attr('transform', 'rotate(-90)')
+				.attr('font-family', 'sans-serif')
+				.attr('font-size', 13)
+				.style('font-weight', 'bold')
+				.text('Happiness Score');
 
-				// add initial global filter
-				dataOriginal = dataOriginal.filter((d) => {
-					return d['Region'] != null && d['Happiness Score'] != null;
-				});
-				console.log(dataOriginal);
+			// 'region' Extent/Scale/Legend
+			// let regionDomain = data.map((d) => { return d['Region']; })
+			let regionDomain = [
+				'South Asia',
+				'East Asia',
+				'Southeast Asia',
+				'Central and Eastern Europe',
+				'Western Europe',
+				'Commonwealth of Independent States',
+				'Middle East and North Africa',
+				'Sub-Saharan Africa',
+				'Latin America and Caribbean',
+				'North America and ANZ',
+			];
 
-				data = dataOriginal.filter((d) => {
-					return d[columnSelected] != null && d['Happiness Score'] != '#N/A';
-				});
-				requestData2(data);
-
-				// X axis Extent/Scale/Axis/Grid (dynamic by data selection)
-				let xExtent = d3.extent(data, (d) => d[columnSelected]);
-				let xScale = d3.scaleLinear().domain(xExtent).range([0, chartWidth]);
-
-				let bottomAxis = d3.axisBottom(xScale).tickFormat(d3.format('~f'));
-				let bottomGridlines = d3
-					.axisBottom(xScale)
-					.tickSize(-chartHeight - 10)
-					.tickFormat('');
-				let bottomAxisG = annotations
-					.append('g')
-					.attr('class', 'x axis')
-					.attr('transform', 'translate(' + margin.left + ',' + (chartHeight + margin.top + 10) + ')')
-					.call(bottomAxis);
-				let bottomGridlinesG = annotations
-					.append('g')
-					.attr('class', 'x gridlines')
-					.attr('transform', 'translate(' + margin.left + ',' + (chartHeight + margin.top + 10) + ')')
-					.attr('color', 'lightgrey')
-					.call(bottomGridlines);
-				let bottomAxisText = annotations
-					.append('g')
-					.append('text')
-					.attr('transform', 'translate(' + chartWidth / 2 + ',' + (chartHeight + margin.bottom) + ')')
-					.attr('text-anchor', 'middle')
-					.attr('font-family', 'sans-serif')
-					.attr('font-size', 13)
+			regionDomain = regionDomain.filter(function (item, pos) {
+				return regionDomain.indexOf(item) == pos;
+			});
+			console.log('regionDomain', regionDomain);
+			// todo: color tweaking
+			// let regionScale = d3.scaleOrdinal().domain(regionDomain).range()
+			// let regionScale = d3.scaleOrdinal().range(["#7400b8","#6930c3","#5e60ce","#5390d9","#4ea8de","#48bfe3","#56cfe1","#64dfdf","#72efdd","#80ffdb"]);
+			let regionScale = d3
+				.scaleOrdinal()
+				.range(['#f3722cff', '#f3722cff', '#f3722cff', '#f9c74fff', '#f9c74fff', '#f9c74fff', '#4d908eff', '#4d908eff', '#277da1ff', '#277da1ff']);
+			// draw Region legend
+			regionDomain.forEach((d) => {
+				d3.select('div#region-legend')
+					.append('circle')
+					.attr('r', 2)
+					.append('span')
+					.text(d + ' ')
+					.style('display', 'list-item')
+					.style('color', regionScale(d))
 					.style('font-weight', 'bold')
-					.text(columnSelected);
+					.on('mouseover', function () {
+						updateDataPoints(d, yearSelected);
+					})
+					.on('mouseout', function () {
+						recoverByYear(yearSelected);
+					});
+			});
 
-				// Y axis Extent/Scale/Axis/Grid (fixed)
-				const yExtent = d3.extent(data, (d) => d['Happiness Score']); // hapiness score
-				const yScale = d3.scaleLinear().domain(yExtent).range([chartHeight, 0]);
+			// draw data points by defalut year
+			recoverByYear(yearSelected);
+			d3.select('#sliderYear').text(yearSelected);
 
-				let leftAxis = d3.axisLeft(yScale).tickFormat(d3.format('~f'));
-				let leftGridlines = d3
-					.axisLeft(yScale)
-					.tickSize(-chartWidth - 10)
-					.tickFormat('');
-				annotations
-					.append('g')
-					.attr('class', 'y axis')
-					.attr('transform', 'translate(' + (margin.left - 10) + ',' + margin.top + ')')
-					.call(leftAxis);
-				annotations
-					.append('g')
-					.attr('class', 'y gridlines')
-					.attr('transform', 'translate(' + (margin.left - 10) + ',' + margin.top + ')')
-					.attr('color', 'lightgrey')
-					.call(leftGridlines);
-				annotations
-					.append('text')
-					.attr('class', 'y label')
-					.attr('text-anchor', 'end')
-					.attr('y', 3)
-					.attr('x', -150)
-					.attr('dy', '.75em')
-					.attr('transform', 'rotate(-90)')
-					.attr('font-family', 'sans-serif')
-					.attr('font-size', 13)
-					.style('font-weight', 'bold')
-					.text('Happiness Score');
+			// hover over data points styles and actions
+			const mouseover = svg
+				.append('g')
+				.attr('class', 'mouseover')
+				.attr('transform', `translate(${margin.left + chartWidth + 15},${margin.top + 15})`);
+			function stringLen(str) {
+				const dummytext = mouseover.append('text').attr('class', 'legendtext').attr('visibility', 'hidden');
+				dummytext.text(str);
+				let len = dummytext.node().getComputedTextLength();
+				dummytext.remove();
+				return len;
+			}
+			const frame = mouseover.append('rect').attr('class', 'frame').attr('x', 0).attr('y', 0).attr('rx', 5).attr('ry', 5).attr('height', 190);
+			const textbox = mouseover.append('g').attr('transform', 'translate(10,10)');
+			const format1 = d3.format(',d');
+			let xMarker = chartArea
+				.append('line')
+				.attr('id', 'xMarker')
+				.attr('fill', 'none')
+				.attr('stroke', 'black')
+				.attr('stroke-width', 1)
+				.attr('y1', 0)
+				.attr('y2', chartHeight)
+				.attr('visibility', 'hidden');
 
-				// 'region' Extent/Scale/Legend
-				// let regionDomain = data.map((d) => { return d['Region']; })
-				let regionDomain = [
-					'South Asia',
-					'East Asia',
-					'Southeast Asia',
-					'Central and Eastern Europe',
-					'Western Europe',
-					'Commonwealth of Independent States',
-					'Middle East and North Africa',
-					'Sub-Saharan Africa',
-					'Latin America and Caribbean',
-					'North America and ANZ',
-				];
+			let yMarker = chartArea
+				.append('line')
+				.attr('id', 'yMarker')
+				.attr('fill', 'none')
+				.attr('stroke', 'black')
+				.attr('stroke-width', 1)
+				.attr('x1', 0)
+				.attr('x2', chartWidth)
+				.attr('visibility', 'hidden');
 
-				regionDomain = regionDomain.filter(function (item, pos) {
-					return regionDomain.indexOf(item) == pos;
-				});
-				console.log('regionDomain', regionDomain);
-				// todo: color tweaking
-				// let regionScale = d3.scaleOrdinal().domain(regionDomain).range()
-				// let regionScale = d3.scaleOrdinal().range(["#7400b8","#6930c3","#5e60ce","#5390d9","#4ea8de","#48bfe3","#56cfe1","#64dfdf","#72efdd","#80ffdb"]);
-				let regionScale = d3
-					.scaleOrdinal()
-					.range(['#f3722cff', '#f3722cff', '#f3722cff', '#f9c74fff', '#f9c74fff', '#f9c74fff', '#4d908eff', '#4d908eff', '#277da1ff', '#277da1ff']);
-				// draw Region legend
-				regionDomain.forEach((d) => {
-					d3.select('div#region-legend')
-                        .append('circle')
-                        .attr('r',2)
-						.append('span')
-						.text(d + ' ')
-						.style('display', 'list-item')
-						.style('color', regionScale(d))
-						.style('font-weight', 'bold')
-						.on('mouseover', function () {
-							updateDataPoints(d, yearSelected);
-						})
-						.on('mouseout', function () {
-							recoverByYear(yearSelected);
-						});
+			updateCircleHover();
+
+			// update hover event listeners for updated 'circles'
+			function updateCircleHover() {
+				circles.on('mouseover', function () {
+					let selection = d3.select(this);
+					selection.raise();
+					mouseOverDataPoint(selection);
 				});
 
-				// draw data points by defalut year
-				recoverByYear(yearSelected);
-				d3.select('#sliderYear').text(yearSelected);
+				circles.on('mouseout', function () {
+					let selection = d3.select(this);
+					mouseOutDataPoint(selection);
+				});
+			}
 
-				// hover over data points styles and actions
-				const mouseover = svg
-					.append('g')
-					.attr('class', 'mouseover')
-					.attr('transform', `translate(${margin.left + chartWidth + 15},${margin.top + 15})`);
-				function stringLen(str) {
-					const dummytext = mouseover.append('text').attr('class', 'legendtext').attr('visibility', 'hidden');
-					dummytext.text(str);
-					let len = dummytext.node().getComputedTextLength();
-					dummytext.remove();
-					return len;
-				}
-				const frame = mouseover.append('rect').attr('class', 'frame').attr('x', 0).attr('y', 0).attr('rx', 5).attr('ry', 5).attr('height', 190);
-				const textbox = mouseover.append('g').attr('transform', 'translate(10,10)');
-				const format1 = d3.format(',d');
-				let xMarker = chartArea
-					.append('line')
-					.attr('id', 'xMarker')
-					.attr('fill', 'none')
-					.attr('stroke', 'black')
-					.attr('stroke-width', 1)
-					.attr('y1', 0)
-					.attr('y2', chartHeight)
-					.attr('visibility', 'hidden');
+			function mouseOutDataPoint(circleSelected) {
+				circleSelected.transition().duration(200).attr('stroke-width', 1).attr('stroke', 'none').attr('r', 4).attr('opacity', 0.75);
+				textbox.attr('visibility', 'hidden');
+				frame.attr('visibility', 'hidden');
+				xMarker.attr('visibility', 'hidden');
+				yMarker.attr('visibility', 'hidden');
+			}
 
-				let yMarker = chartArea
-					.append('line')
-					.attr('id', 'yMarker')
-					.attr('fill', 'none')
-					.attr('stroke', 'black')
-					.attr('stroke-width', 1)
-					.attr('x1', 0)
-					.attr('x2', chartWidth)
-					.attr('visibility', 'hidden');
+			function mouseOverDataPoint(circleSelected) {
+				textbox.attr('visibility', '');
+				frame.attr('visibility', '');
+				xMarker.attr('visibility', '');
+				yMarker.attr('visibility', '');
+
+				let d = circleSelected.datum();
+
+				circleSelected.transition().duration(200).attr('stroke-width', 4).attr('stroke', 'black').attr('r', 6).attr('opacity', 1);
+
+				console.log(d);
+
+				textbox.html('');
+
+				let countryName = `Country: ${d['Country']}`;
+				let freedom = `Freedom: ${d['Freedom']} / 1`;
+				let generosity = `Generosity: ${d['Generosity']}`;
+				let happScore = `Happiness Score: ${d['Happiness Score']}`;
+				let life = `Life expectancy: ${d['Healthy life expectancy at birth']} years`;
+				let ladder = `Life Ladder: ${d['Life Ladder']}`;
+				let gdp = `Log GDP per capita: ${d['Log GDP per capita']}`;
+				let corruption = `Corruption Perception: ${d['Perceptions of corruption']} / 1`;
+				let support = `Social support: ${d['Social support']} / 1`;
+
+				let maxWidth = Math.max(
+					stringLen(countryName),
+					stringLen(freedom),
+					stringLen(generosity),
+					stringLen(happScore),
+					stringLen(life),
+					stringLen(ladder),
+					stringLen(gdp),
+					stringLen(corruption),
+					stringLen(support)
+				);
+				frame.attr('width', maxWidth + 30);
+
+				textbox.append('text').text(countryName).attr('x', 0).attr('y', 10);
+				textbox.append('text').text(freedom).attr('x', 0).attr('y', 30);
+				textbox.append('text').text(generosity).attr('x', 0).attr('y', 50);
+				textbox.append('text').text(happScore).attr('x', 0).attr('y', 70);
+				textbox.append('text').text(life).attr('x', 0).attr('y', 90);
+				textbox.append('text').text(ladder).attr('x', 0).attr('y', 110);
+				textbox.append('text').text(gdp).attr('x', 0).attr('y', 130);
+				textbox.append('text').text(corruption).attr('x', 0).attr('y', 150);
+				textbox.append('text').text(support).attr('x', 0).attr('y', 170);
+
+				yMarker.attr('y1', yScale(d['Happiness Score'])).attr('y2', yScale(d['Happiness Score']));
+				xMarker.attr('x1', xScale(d[columnSelected])).attr('x2', xScale(d[columnSelected]));
+			}
+
+			// Select data using drop down menu & hover over legend)
+			// Only show data points with certain YEAR & REGION
+			function updateDataPoints(region, year) {
+				yearSelected = year;
+				console.log('updateDataPoints()', columnSelected, yearSelected);
+
+				// data filtering
+				if (yearSelected == 0) dataByYear = data;
+				else
+					dataByYear = data.filter((d) => {
+						return d['year'] == yearSelected;
+					});
+
+				if (region == null) dataByYearRegion = dataByYear;
+				else
+					dataByYearRegion = dataByYear.filter((d) => {
+						return d['Region'] == region;
+					});
+
+				// reduce opacity for circles (dataByYear)
+				chartArea
+					.selectAll('circle')
+					.data(dataByYear)
+					.join('circle')
+					.attr('class', (d) => d['Region'])
+					.attr('cx', (d) => xScale(d[columnSelected]))
+					.attr('cy', (d) => yScale(d['Happiness Score']))
+					.attr('r', 4)
+					.style('fill', (d) => regionScale(d['Region']))
+					.attr('opacity', 0.1);
+
+				// add opacity for circle with certain year & region
+				circles = chartArea
+					.selectAll('region')
+					.data(dataByYearRegion)
+					.join('circle')
+					.attr('class', (d) => d['Region'])
+					.attr('cx', (d) => xScale(d[columnSelected]))
+					.attr('cy', (d) => yScale(d['Happiness Score']))
+					.attr('r', 4)
+					.style('fill', (d) => regionScale(d['Region']))
+					.attr('opacity', 1);
 
 				updateCircleHover();
+			}
 
-				// update hover event listeners for updated 'circles'
-				function updateCircleHover() {
-					circles.on('mouseover', function () {
-						let selection = d3.select(this);
-						selection.raise();
-						mouseOverDataPoint(selection);
+			// Show data points with certain year
+			function recoverByYear(year) {
+				console.log('recoverByYear()', columnSelected, yearSelected);
+				yearSelected = year;
+
+				let updatedData = data;
+				if (yearSelected != 0)
+					updatedData = data.filter((d) => {
+						return d['year'] == yearSelected;
 					});
 
-					circles.on('mouseout', function () {
-						let selection = d3.select(this);
-						mouseOutDataPoint(selection);
-					});
+				circles = chartArea
+					.selectAll('circle')
+					.data(updatedData)
+					.join('circle')
+					.attr('class', (d) => d['Region'])
+					.attr('cx', (d) => xScale(d[columnSelected]))
+					.attr('cy', (d) => yScale(d['Happiness Score']))
+					.attr('r', 4)
+					.style('fill', (d) => regionScale(d['Region']))
+					.attr('opacity', 0.75);
+
+				updateCircleHover();
+				return updatedData;
+			}
+
+			// year selection
+			// d3.select('#year-select').on('change', function () {
+			//     yearSelected = d3.select(this).property('value');
+			//     recoverByYear(yearSelected)
+			//     console.log(circles); // todo只有前128个circle有Event Listener？？？？？
+			// })
+			d3.select('#sliderRange').on('change', function () {
+				yearSelected = d3.select(this).property('value');
+				console.log(yearSelected);
+				d3.select('#sliderYear').text(yearSelected);
+				let newData = recoverByYear(yearSelected);
+				requestData2(newData, yearSelected);
+			});
+
+			// column selection
+			d3.select('#column-select').on('change', function () {
+				valueSelected = d3.select(this).property('value');
+				updateByColumn(valueSelected);
+				console.log(circles);
+			});
+			function selectColumn(value) {
+				console.log('=============', value)
+			}
+
+			// only this function filter/modify 'data'
+			function updateByColumn(valueSelected) {
+				// set global variable 'columnSelected'
+				if (valueSelected == 'generos') {
+					columnSelected = 'Generosity';
+				} else if (valueSelected == 'life') {
+					columnSelected = 'Healthy life expectancy at birth';
+				} else if (valueSelected == 'ladder') {
+					columnSelected = 'Life Ladder';
+				} else if (valueSelected == 'gdp') {
+					columnSelected = 'Log GDP per capita';
+				} else if (valueSelected == 'corr') {
+					columnSelected = 'Perceptions of corruption';
+				} else if (valueSelected == 'support') {
+					columnSelected = 'Social support';
+				} else {
+					columnSelected = 'Freedom';
 				}
+				console.log('updateByColumn()', columnSelected, yearSelected);
 
-				function mouseOutDataPoint(circleSelected) {
-					circleSelected.transition().duration(200).attr('stroke-width', 1).attr('stroke', 'none').attr('r', 4).attr('opacity', 0.75);
-					textbox.attr('visibility', 'hidden');
-					frame.attr('visibility', 'hidden');
-					xMarker.attr('visibility', 'hidden');
-					yMarker.attr('visibility', 'hidden');
-				}
-
-				function mouseOverDataPoint(circleSelected) {
-					textbox.attr('visibility', '');
-					frame.attr('visibility', '');
-					xMarker.attr('visibility', '');
-					yMarker.attr('visibility', '');
-
-					let d = circleSelected.datum();
-
-					circleSelected.transition().duration(200).attr('stroke-width', 4).attr('stroke', 'black').attr('r', 6).attr('opacity', 1);
-
-					console.log(d);
-
-					textbox.html('');
-
-					let countryName = `Country: ${d['Country']}`;
-					let freedom = `Freedom: ${d['Freedom']} / 1`;
-					let generosity = `Generosity: ${d['Generosity']}`;
-					let happScore = `Happiness Score: ${d['Happiness Score']}`;
-					let life = `Life expectancy: ${d['Healthy life expectancy at birth']} years`;
-					let ladder = `Life Ladder: ${d['Life Ladder']}`;
-					let gdp = `Log GDP per capita: ${d['Log GDP per capita']}`;
-					let corruption = `Corruption Perception: ${d['Perceptions of corruption']} / 1`;
-					let support = `Social support: ${d['Social support']} / 1`;
-
-					let maxWidth = Math.max(
-						stringLen(countryName),
-						stringLen(freedom),
-						stringLen(generosity),
-						stringLen(happScore),
-						stringLen(life),
-						stringLen(ladder),
-						stringLen(gdp),
-						stringLen(corruption),
-						stringLen(support)
-					);
-					frame.attr('width', maxWidth + 30);
-
-					textbox.append('text').text(countryName).attr('x', 0).attr('y', 10);
-					textbox.append('text').text(freedom).attr('x', 0).attr('y', 30);
-					textbox.append('text').text(generosity).attr('x', 0).attr('y', 50);
-					textbox.append('text').text(happScore).attr('x', 0).attr('y', 70);
-					textbox.append('text').text(life).attr('x', 0).attr('y', 90);
-					textbox.append('text').text(ladder).attr('x', 0).attr('y', 110);
-					textbox.append('text').text(gdp).attr('x', 0).attr('y', 130);
-					textbox.append('text').text(corruption).attr('x', 0).attr('y', 150);
-					textbox.append('text').text(support).attr('x', 0).attr('y', 170);
-
-					yMarker.attr('y1', yScale(d['Happiness Score'])).attr('y2', yScale(d['Happiness Score']));
-					xMarker.attr('x1', xScale(d[columnSelected])).attr('x2', xScale(d[columnSelected]));
-				}
-
-				// Select data using drop down menu & hover over legend)
-				// Only show data points with certain YEAR & REGION
-				function updateDataPoints(region, year) {
-					yearSelected = year;
-					console.log('updateDataPoints()', columnSelected, yearSelected);
-					// reduce opacity for all circles
-					chartArea
-						.selectAll('circle')
-						.data(data)
-						.join('circle')
-						.attr('class', (d) => d['Region'])
-						.attr('cx', (d) => xScale(d[columnSelected]))
-						.attr('cy', (d) => yScale(d['Happiness Score']))
-						.attr('r', 4)
-						.style('fill', (d) => regionScale(d['Region']))
-						.attr('opacity', 0.1);
-
-					// add opacity for certain circle with spec
-					if (yearSelected == 0) dataByYear = data;
-					else
-						dataByYear = data.filter((d) => {
-							return d['year'] == yearSelected;
-						});
-
-					if (region == null) dataByYearRegion = dataByYear;
-					else
-						dataByYearRegion = dataByYear.filter((d) => {
-							return d['Region'] == region;
-						});
-
-					circles = chartArea
-						.selectAll('region')
-						.data(dataByYearRegion)
-						.join('circle')
-						.attr('class', (d) => d['Region'])
-						.attr('cx', (d) => xScale(d[columnSelected]))
-						.attr('cy', (d) => yScale(d['Happiness Score']))
-						.attr('r', 4)
-						.style('fill', (d) => regionScale(d['Region']))
-						.attr('opacity', 1);
-
-					updateCircleHover();
-				}
-
-				// Show data points with certain year
-				function recoverByYear(year) {
-					console.log('recoverByYear()', columnSelected, yearSelected);
-					yearSelected = year;
-
-					let updatedData = data;
-					if (yearSelected != 0)
-						updatedData = data.filter((d) => {
-							return d['year'] == yearSelected;
-						});
-
-					circles = chartArea
-						.selectAll('circle')
-						.data(updatedData)
-						.join('circle')
-						.attr('class', (d) => d['Region'])
-						.attr('cx', (d) => xScale(d[columnSelected]))
-						.attr('cy', (d) => yScale(d['Happiness Score']))
-						.attr('r', 4)
-						.style('fill', (d) => regionScale(d['Region']))
-						.attr('opacity', 0.75);
-
-					updateCircleHover();
-					return updatedData;
-				}
-
-				// year selection
-				// d3.select('#year-select').on('change', function () {
-				//     yearSelected = d3.select(this).property('value');
-				//     recoverByYear(yearSelected)
-				//     console.log(circles); // todo只有前128个circle有Event Listener？？？？？
-				// })
-				d3.select('#sliderRange').on('change', function () {
-					yearSelected = d3.select(this).property('value');
-					console.log(yearSelected);
-					d3.select('#sliderYear').text(yearSelected);
-					let newData = recoverByYear(yearSelected);
-					requestData2(newData, yearSelected);
+				// filter data by 'columnSelected'
+				data = dataOriginal.filter((d) => {
+					return d[columnSelected] != null;
 				});
 
-				// column selection
-				d3.select('#column-select').on('change', function () {
-					valueSelected = d3.select(this).property('value');
-					updateByColumn(valueSelected);
-					console.log(circles);
-				});
-                function selectColumn(value) {
-                    console.log('=============',value)
-                }
+				// update xextent/scale/gridlines/axis
+				xExtent = d3.extent(data, (d) => d[columnSelected]);
+				xScale.domain(xExtent);
+				bottomAxis.scale(xScale);
+				bottomAxisG.transition().call(bottomAxis);
+				bottomGridlines.scale(xScale);
+				bottomGridlinesG.transition().call(bottomGridlines);
+				bottomAxisText.text(columnSelected);
 
-				// only this function filter/modify 'data'
-				function updateByColumn(valueSelected) {
-					// set global variable 'columnSelected'
-					if (valueSelected == 'generos') {
-						columnSelected = 'Generosity';
-					} else if (valueSelected == 'life') {
-						columnSelected = 'Healthy life expectancy at birth';
-					} else if (valueSelected == 'ladder') {
-						columnSelected = 'Life Ladder';
-					} else if (valueSelected == 'gdp') {
-						columnSelected = 'Log GDP per capita';
-					} else if (valueSelected == 'corr') {
-						columnSelected = 'Perceptions of corruption';
-					} else if (valueSelected == 'support') {
-						columnSelected = 'Social support';
-					} else {
-						columnSelected = 'Freedom';
-					}
-					console.log('updateByColumn()', columnSelected, yearSelected);
+				// After data update, redraw datapoints
+				recoverByYear(yearSelected);
+			}
+		};
+		// call
+		requestData();
+	</script>
 
-					// filter data by 'columnSelected'
-					data = dataOriginal.filter((d) => {
-						return d[columnSelected] != null;
-					});
+	<script>
+		const requestData2 = async function (data, year = 2017) {
+			document.getElementById('map').innerHTML = '';
+			document.getElementById('colorLegend').innerHTML = '';
 
-					// update xextent/scale/gridlines/axis
-					xExtent = d3.extent(data, (d) => d[columnSelected]);
-					xScale.domain(xExtent);
-					bottomAxis.scale(xScale);
-					bottomAxisG.transition().call(bottomAxis);
-					bottomGridlines.scale(xScale);
-					bottomGridlinesG.transition().call(bottomGridlines);
-					bottomAxisText.text(columnSelected);
+			const svgmap = d3.select('svg#map');
+			const widthm = parseInt(svgmap.attr('width'));
+			const heightm = parseInt(svgmap.attr('height'));
+			const marginm = { top: 20, right: 20, bottom: 20, left: 20 };
+			const mapWidth = widthm - marginm.left - marginm.right;
+			const mapHeight = heightm - marginm.top - marginm.bottom;
+			const map = svgmap.append('g').attr('transform', 'translate(' + marginm.left + ',' + marginm.top + ')');
 
-					// After data update, redraw datapoints
-					recoverByYear(yearSelected);
+			const world = await d3.json('./datasets/world.json');
+			const countryCodes = await d3.json('./datasets/country-codes.json');
+
+			console.log('selectYear', year, data);
+			let countryHappiness = {};
+			let CountryIds = [];
+			data.forEach((country) => {
+				countryHappiness[country['Country']] = Number(country['Happiness Score']).toFixed(2);
+				CountryIds.push(getCountryId(country['Country'], countryCodes));
+			});
+			var allHappiness = Object.values(countryHappiness);
+
+			console.log('countryHappiness', countryHappiness, CountryIds, allHappiness);
+
+			var countries = topojson.feature(world, world.objects.countries);
+			countries.features = countries.features.filter((country) => {
+				return country.id !== '010';
+			});
+
+			world.objects.countries.geometries = world.objects.countries.geometries.filter((country) => {
+				return CountryIds.includes(country.id);
+			});
+
+			var countriesMesh = topojson.mesh(world, world.objects.countries);
+			var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], countries);
+			var path = d3.geoPath().projection(projection);
+
+			map.append('rect').attr('x', -margin.left).attr('y', -margin.top).attr('width', width).attr('height', height).attr('fill-opacity', 0);
+
+			map
+				.selectAll('path.country')
+				.data(countries.features)
+				.join('path')
+				.attr('class', 'country')
+				.attr('d', path)
+				.on('mouseover', mouseEntersPlot)
+				.on('mouseout', mouseLeavesPlot);
+
+			map.append('path').datum(countriesMesh).attr('class', 'outline').attr('d', path);
+
+			let tooltipWidth = 200;
+			let tooltipHeight = 80;
+
+			let momesh = map.append('path').attr('class', 'mouseover outline').attr('d', '');
+
+			let tooltip = map.append('g').attr('class', 'tooltip').attr('visibility', 'hidden');
+			tooltip
+				.append('rect')
+				.attr('fill', 'black')
+				.attr('opacity', 0.9)
+				.attr('x', -tooltipWidth / 2.0)
+				.attr('y', 0)
+				.attr('width', tooltipWidth)
+				.attr('height', tooltipHeight);
+			let txt = tooltip
+				.append('text')
+				.attr('class', 'countryName')
+				.attr('fill', 'white')
+				.attr('text-anchor', 'middle')
+				.attr('alignment-baseline', 'hanging')
+				.attr('x', 0)
+				.attr('y', 20);
+			let txt2 = tooltip
+				.append('text')
+				.attr('class', 'countryInfo')
+				.attr('fill', 'white')
+				.attr('text-anchor', 'middle')
+				.attr('alignment-baseline', 'hanging')
+				.attr('x', 0)
+				.attr('y', 45);
+
+			// color scale
+			const colorScale = d3.scaleSequential(d3.interpolateGnBu).domain(d3.extent(Object.values(allHappiness)));
+
+			map.selectAll('.country').style('fill', (d) => {
+				let countryName = getCountryName(d.id, countryCodes);
+				if (countryHappiness[countryName]) {
+					return colorScale(countryHappiness[countryName]);
 				}
-			};
-			// call
-			requestData();
-		</script>
+			});
 
-		<script>
-			const requestData2 = async function (data, year = 2017) {
-				document.getElementById('map').innerHTML = '';
-				document.getElementById('colorLegend').innerHTML = '';
-                
-				const svgmap = d3.select('svg#map');
-				const widthm = parseInt(svgmap.attr('width'));
-				const heightm = parseInt(svgmap.attr('height'));
-				const marginm = { top: 20, right: 20, bottom: 20, left: 20 };
-				const mapWidth = widthm - marginm.left - marginm.right;
-				const mapHeight = heightm - marginm.top - marginm.bottom;
-				const map = svgmap.append('g').attr('transform', 'translate(' + marginm.left + ',' + marginm.top + ')');
+			const sortedAllHappiness = allHappiness.sort(function (a, b) {
+				return a - b;
+			});
+			drawLegend(sortedAllHappiness, d3.select('#colorLegend'), colorScale);
 
-				const world = await d3.json('./datasets/world.json');
-				const countryCodes = await d3.json('./datasets/country-codes.json');
+			d3.selectAll('.country').on('mouseenter', mouseEntersPlot);
+			d3.selectAll('.country').on('mouseout', mouseLeavesPlot);
 
-				console.log('selectYear', year, data);
-				let countryHappiness = {};
-				let CountryIds = [];
-				data.forEach((country) => {
-					countryHappiness[country['Country']] = Number(country['Happiness Score']).toFixed(2);
-					CountryIds.push(getCountryId(country['Country'], countryCodes));
-				});
-				var allHappiness = Object.values(countryHappiness);
-
-				console.log('countryHappiness', countryHappiness, CountryIds, allHappiness);
-
-				var countries = topojson.feature(world, world.objects.countries);
-				countries.features = countries.features.filter((country) => {
-					return country.id !== '010';
-				});
-
-				world.objects.countries.geometries = world.objects.countries.geometries.filter((country) => {
-					return CountryIds.includes(country.id);
-				});
-
-				var countriesMesh = topojson.mesh(world, world.objects.countries);
-				var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], countries);
-				var path = d3.geoPath().projection(projection);
-
-				map.append('rect').attr('x', -margin.left).attr('y', -margin.top).attr('width', width).attr('height', height).attr('fill-opacity', 0);
-
-				map
-					.selectAll('path.country')
-					.data(countries.features)
-					.join('path')
-					.attr('class', 'country')
-					.attr('d', path)
-					.on('mouseover', mouseEntersPlot)
-					.on('mouseout', mouseLeavesPlot);
-
-				map.append('path').datum(countriesMesh).attr('class', 'outline').attr('d', path);
-
-				let tooltipWidth = 200;
-				let tooltipHeight = 80;
-
-				let momesh = map.append('path').attr('class', 'mouseover outline').attr('d', '');
-
-				let tooltip = map.append('g').attr('class', 'tooltip').attr('visibility', 'hidden');
-				tooltip
-					.append('rect')
-					.attr('fill', 'black')
-					.attr('opacity', 0.9)
-					.attr('x', -tooltipWidth / 2.0)
-					.attr('y', 0)
-					.attr('width', tooltipWidth)
-					.attr('height', tooltipHeight);
-				let txt = tooltip
-					.append('text')
-					.attr('class', 'countryName')
-					.attr('fill', 'white')
-					.attr('text-anchor', 'middle')
-					.attr('alignment-baseline', 'hanging')
-					.attr('x', 0)
-					.attr('y', 20);
-				let txt2 = tooltip
-					.append('text')
-					.attr('class', 'countryInfo')
-					.attr('fill', 'white')
-					.attr('text-anchor', 'middle')
-					.attr('alignment-baseline', 'hanging')
-					.attr('x', 0)
-					.attr('y', 45);
-
-				// color scale
-				const colorScale = d3.scaleSequential(d3.interpolateGnBu).domain(d3.extent(Object.values(allHappiness)));
-
-				map.selectAll('.country').style('fill', (d) => {
-					let countryName = getCountryName(d.id, countryCodes);
-					if (countryHappiness[countryName]) {
-						return colorScale(countryHappiness[countryName]);
-					}
-				});
-
-				const sortedAllHappiness = allHappiness.sort(function (a, b) {
-					return a - b;
-				});
-				drawLegend(sortedAllHappiness, d3.select('#colorLegend'), colorScale);
-
-				d3.selectAll('.country').on('mouseenter', mouseEntersPlot);
-				d3.selectAll('.country').on('mouseout', mouseLeavesPlot);
-
-				function mouseEntersPlot() {
-					let country = d3.select(this);
-					console.log('country!!!!!!!', country);
-					if (CountryIds.includes(country.datum().id)) {
-						tooltip.style('visibility', 'visible');
-						country.attr('stroke', 'black').attr('stroke-width', 3).style('opacity', 0.5);
-					}
-					let countryID = country.datum().id;
-					let countryName = getCountryName(countryID, countryCodes);
-					txt.text(countryName);
-					txt2.text('Happiness Score: ' + countryHappiness[countryName]);
-
-					let bounds = path.bounds(country.datum());
-					let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
-					xPos = xPos > 580 ? 580 : xPos;
-					let yPos = bounds[1][1] + 10;
-					yPos = yPos > 400 ? 400 : yPos;
-					// console.log(xPos);
-					tooltip.attr('transform', `translate(${xPos},${yPos})`);
-					var mo = topojson.mesh(world, world.objects.countries, function (a, b) {
-						return a.id === countryID || b.id === countryID;
-					});
-					momesh.datum(mo).attr('d', path);
+			function mouseEntersPlot() {
+				let country = d3.select(this);
+				console.log('country!!!!!!!', country);
+				if (CountryIds.includes(country.datum().id)) {
+					tooltip.style('visibility', 'visible');
+					country.attr('stroke', 'black').attr('stroke-width', 3).style('opacity', 0.5);
 				}
+				let countryID = country.datum().id;
+				let countryName = getCountryName(countryID, countryCodes);
+				txt.text(countryName);
+				txt2.text('Happiness Score: ' + countryHappiness[countryName]);
 
-				function mouseLeavesPlot() {
-					tooltip.style('visibility', 'hidden');
-					let country = d3.select(this);
+				let bounds = path.bounds(country.datum());
+				let xPos = (bounds[0][0] + bounds[1][0]) / 2.0;
+				xPos = xPos > 580 ? 580 : xPos;
+				let yPos = bounds[1][1] + 10;
+				yPos = yPos > 400 ? 400 : yPos;
+				// console.log(xPos);
+				tooltip.attr('transform', `translate(${xPos},${yPos})`);
+				var mo = topojson.mesh(world, world.objects.countries, function (a, b) {
+					return a.id === countryID || b.id === countryID;
+				});
+				momesh.datum(mo).attr('d', path);
+			}
 
-					if (CountryIds.includes(country.datum().id)) {
-						country.attr('stroke', 'black').attr('stroke-width', 1).style('opacity', 1);
-					}
-					momesh.attr('d', '');
+			function mouseLeavesPlot() {
+				tooltip.style('visibility', 'hidden');
+				let country = d3.select(this);
+
+				if (CountryIds.includes(country.datum().id)) {
+					country.attr('stroke', 'black').attr('stroke-width', 1).style('opacity', 1);
 				}
+				momesh.attr('d', '');
+			}
 
-				function getCountryId(name, countryCodes) {
-					for (let country of countryCodes) {
-						if (name === country['name']) {
-							return country['country-code'];
-						}
+			function getCountryId(name, countryCodes) {
+				for (let country of countryCodes) {
+					if (name === country['name']) {
+						return country['country-code'];
 					}
 				}
+			}
 
-				function getCountryName(id, countryCodes) {
-					for (let country of countryCodes) {
-						if (id === country['country-code']) {
-							return country.name;
-						}
+			function getCountryName(id, countryCodes) {
+				for (let country of countryCodes) {
+					if (id === country['country-code']) {
+						return country.name;
 					}
 				}
-			};
-		</script>
-	</body>
+			}
+		};
+	</script>
+</body>
+
 </html>
