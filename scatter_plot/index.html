@@ -129,32 +129,6 @@
 					<input type="radio" class="btn-check" name="btnradio" id="btnradio7" autocomplete="off" value="support" />
 					<label class="btn btn-outline-info" for="btnradio7">Social Support</label>
 				</div>
-				<!-- <div class="btn-group">
-					<button value="free" onClick="selectColumn()">Freedom</button>
-					<button value="generos" onClick="selectColumn()">Generosity</button>
-					<button value="life" onClick="selectColumn()">Healthy Life Expectancy at Birth</button>
-					<button value="ladder" onClick="selectColumn()">Life Ladder</button>
-					<button value="gdp" onClick="selectColumn()">Log GDP Per Capita</button>
-					<button value="corr" onClick="selectColumn()">Perceptions of Corruption</button>
-					<button value="support" onClick="selectColumn()">Social Support</button>
-				</div> -->
-				<!-- <div id="dropdown">
-					<label for="column-select-label" id="column" >Select
-						Attributes to Compare: </label>
-					<br />
-					<select id="column-select"
-						style="width: 200px; margin-right: 50px; margin-left: 5px; margin-bottom: 15px">
-						<option value="free" selected>Freedom</option>
-						<option value="generos">Generosity</option>
-						<option value="life">Healthy life expectancy at birth</option>
-						<option value="ladder">Life Ladder</option>
-						<option value="gdp">Log GDP per capita</option>
-						<option value="corr">Perceptions of corruption</option>
-						<option value="support">Social support</option>
-					</select>
-				</div> -->
-
-				<!-- </div> -->
 				<div style="display: flex; margin-top: 15px">
 					<div id="region-legend" style="margin-right: 10px">
 						<span id="legend-title" style="color: black; font-weight: bold">Step 2: hover on a region</span>
@@ -196,6 +170,8 @@
 				let circles = {};
 
 				// Read in dataset
+				// const world = await d3.json('./datasets/world.json');
+				// const countryCodes = await d3.json('./datasets/country-codes.json');
 				let dataOriginal = await d3.csv('aggregated.csv', d3.autoType);
 				console.log(dataOriginal);
 
@@ -208,7 +184,7 @@
 				data = dataOriginal.filter((d) => {
 					return d[columnSelected] != null && d['Happiness Score'] != '#N/A';
 				});
-				requestData2(data);
+				// requestData2(data);
 
 				// X axis Extent/Scale/Axis/Grid (dynamic by data selection)
 				let xExtent = d3.extent(data, (d) => d[columnSelected]);
@@ -485,6 +461,8 @@
 							return d['year'] == yearSelected;
 						});
 
+					requestData2(data);
+
 					circles = chartArea
 						.selectAll('circle')
 						.data(updatedData)
@@ -511,7 +489,6 @@
 					console.log(yearSelected);
 					d3.select('#sliderYear').text(yearSelected);
 					let newData = recoverByYear(yearSelected);
-					requestData2(newData, yearSelected);
 				});
 
 				// column selection
@@ -568,7 +545,8 @@
 		</script>
 
 		<script>
-			const requestData2 = async function (data, year = 2017) {
+			const requestData2 = async function (data) {
+				console.log('refresh map data');
 				document.getElementById('map').innerHTML = '';
 				document.getElementById('colorLegend').innerHTML = '';
 
@@ -583,7 +561,6 @@
 				const world = await d3.json('./datasets/world.json');
 				const countryCodes = await d3.json('./datasets/country-codes.json');
 
-				console.log('selectYear', year, data);
 				let countryHappiness = {};
 				let CountryIds = [];
 				data.forEach((country) => {
@@ -592,7 +569,7 @@
 				});
 				var allHappiness = Object.values(countryHappiness);
 
-				console.log('countryHappiness', countryHappiness, CountryIds, allHappiness);
+				// console.log('countryHappiness', countryHappiness, CountryIds, allHappiness);
 
 				var countries = topojson.feature(world, world.objects.countries);
 				countries.features = countries.features.filter((country) => {
@@ -666,12 +643,9 @@
 				});
 				drawLegend(sortedAllHappiness, d3.select('#colorLegend'), colorScale);
 
-				d3.selectAll('.country').on('mouseenter', mouseEntersPlot);
-				d3.selectAll('.country').on('mouseout', mouseLeavesPlot);
-
 				function mouseEntersPlot() {
 					let country = d3.select(this);
-					console.log('country!!!!!!!', country);
+
 					if (CountryIds.includes(country.datum().id)) {
 						tooltip.style('visibility', 'visible');
 						country.attr('stroke', 'black').attr('stroke-width', 3).style('opacity', 0.5);
@@ -691,6 +665,7 @@
 					var mo = topojson.mesh(world, world.objects.countries, function (a, b) {
 						return a.id === countryID || b.id === countryID;
 					});
+					console.log('country!!!!!!!', mo, path);
 					momesh.datum(mo).attr('d', path);
 				}
 
