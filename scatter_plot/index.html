@@ -93,23 +93,6 @@
 			.btn-group label:hover {
 				background-color: #dfd;
 			}
-			/* .btn-group label {
-				padding: 10px 24px;
-				cursor: pointer;
-				float: center;
-				margin-bottom: 20px;
-				border-radius: 10px;
-			}
-
-			.btn-group button:not(:last-child) {
-				border-right: none;
-			}
-
-			.btn-group:after {
-				content: '';
-				clear: both;
-				display: table;
-			} */
 		</style>
 	</head>
 
@@ -147,7 +130,7 @@
 				</div>
 				<div class="slidecontainer">
 					<label for="year-select-label2" id="year" style="color: black; font-weight: bold">Step 3: select a year </label><br />
-					<input type="range" min="2015" max="2019" value="2017" class="slider" id="sliderRange" />
+					<input type="range" min="2015" max="2019" value="2015" class="slider" id="sliderRange" />
 					Year: <span id="sliderYear"></span>
 				</div>
 				<div id="mapCanvas">
@@ -175,7 +158,7 @@
 			let requestData = async function () {
 				// Set global variables
 				let columnSelected = 'Freedom';
-				let yearSelected = 2017;
+				let yearSelected = 2015;
 				let regionSelected = undefined;
 				let circles = {};
 
@@ -187,14 +170,14 @@
 
 				// add initial global filter
 				dataOriginal = dataOriginal.filter((d) => {
-					return d['Region'] != null && d['Happiness Score'] != null;
+					return d['Region'] != null && d['Happiness Score'] != null && d['Happiness Score'] != '#N/A';
 				});
 				console.log(dataOriginal);
 
 				data = dataOriginal.filter((d) => {
-					return d[columnSelected] != null && d['Happiness Score'] != '#N/A';
+					return d[columnSelected] != null;
 				});
-				// requestData2(data);
+				requestMapData(data);
 
 				// X axis Extent/Scale/Axis/Grid (dynamic by data selection)
 				let xExtent = d3.extent(data, (d) => d[columnSelected]);
@@ -278,9 +261,6 @@
 					return regionDomain.indexOf(item) == pos;
 				});
 				console.log('regionDomain', regionDomain);
-				// todo: color tweaking
-				// let regionScale = d3.scaleOrdinal().domain(regionDomain).range()
-				// let regionScale = d3.scaleOrdinal().range(["#7400b8","#6930c3","#5e60ce","#5390d9","#4ea8de","#48bfe3","#56cfe1","#64dfdf","#72efdd","#80ffdb"]);
 				let regionScale = d3
 					.scaleOrdinal()
 					.range(['#f3722cff', '#f3722cff', '#f3722cff', '#f9c74fff', '#f9c74fff', '#f9c74fff', '#4d908eff', '#4d908eff', '#277da1ff', '#277da1ff']);
@@ -418,7 +398,6 @@
 				// Only show data points with certain YEAR & REGION
 				function updateDataPoints(region, year) {
 					yearSelected = year;
-					console.log('updateDataPoints()', columnSelected, yearSelected);
 
 					// data filtering
 					if (yearSelected == 0) dataByYear = data;
@@ -471,8 +450,6 @@
 							return d['year'] == yearSelected;
 						});
 
-					requestData2(data);
-
 					circles = chartArea
 						.selectAll('circle')
 						.data(updatedData)
@@ -488,25 +465,13 @@
 					return updatedData;
 				}
 
-				// year selection
-				// d3.select('#year-select').on('change', function () {
-				//     yearSelected = d3.select(this).property('value');
-				//     recoverByYear(yearSelected)
-				//     console.log(circles); // todo只有前128个circle有Event Listener？？？？？
-				// })
 				d3.select('#sliderRange').on('change', function () {
 					yearSelected = d3.select(this).property('value');
 					console.log(yearSelected);
 					d3.select('#sliderYear').text(yearSelected);
 					let newData = recoverByYear(yearSelected);
+					requestMapData(newData);
 				});
-
-				// column selection
-				// d3.select('#column-select').on('change', function () {
-				// 	valueSelected = d3.select(this).property('value');
-				// 	updateByColumn(valueSelected);
-				// 	console.log(circles);
-				// });
 
 				d3.select('#selector').on('change', (e) => {
 					updateByColumn(e.target.value);
@@ -547,7 +512,7 @@
 					bottomAxisText.text(columnSelected);
 
 					// After data update, redraw datapoints
-					recoverByYear(yearSelected);
+					let newData = recoverByYear(yearSelected);
 				}
 			};
 			// call
@@ -555,7 +520,7 @@
 		</script>
 
 		<script>
-			const requestData2 = async function (data) {
+			const requestMapData = async function (data) {
 				console.log('refresh map data');
 				document.getElementById('map').innerHTML = '';
 				document.getElementById('colorLegend').innerHTML = '';
@@ -578,8 +543,6 @@
 					CountryIds.push(getCountryId(country['Country'], countryCodes));
 				});
 				var allHappiness = Object.values(countryHappiness);
-
-				// console.log('countryHappiness', countryHappiness, CountryIds, allHappiness);
 
 				var countries = topojson.feature(world, world.objects.countries);
 				countries.features = countries.features.filter((country) => {
@@ -641,6 +604,7 @@
 				// color scale
 				const colorScale = d3.scaleSequential(d3.interpolateGnBu).domain(d3.extent(Object.values(allHappiness)));
 
+				console.log(allHappiness);
 				map.selectAll('.country').style('fill', (d) => {
 					let countryName = getCountryName(d.id, countryCodes);
 					if (countryHappiness[countryName]) {
@@ -651,6 +615,7 @@
 				const sortedAllHappiness = allHappiness.sort(function (a, b) {
 					return a - b;
 				});
+
 				drawLegend(sortedAllHappiness, d3.select('#colorLegend'), colorScale);
 
 				function mouseEntersPlot() {
@@ -675,7 +640,6 @@
 					var mo = topojson.mesh(world, world.objects.countries, function (a, b) {
 						return a.id === countryID || b.id === countryID;
 					});
-					console.log('country!!!!!!!', mo, path);
 					momesh.datum(mo).attr('d', path);
 				}
 
