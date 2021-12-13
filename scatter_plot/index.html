@@ -47,7 +47,8 @@
 			}
 
 			.slidecontainer {
-				width: 20%;
+				width: 25%;
+				margin-top: 20px;
 			}
 
 			.slider {
@@ -105,7 +106,7 @@
 	<body>
 		<div id="demo">
 			<div class="container">
-				<h5>Choose a happiness factor</h5>
+				<p style="font-weight: bold">Step 1: select a happiness factor</p>
 				<div id="selector" class="btn-group" role="group" aria-label="Basic radio toggle button group">
 					<input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" checked value="free" />
 					<label class="btn btn-outline-info" for="btnradio1">Freedom</label>
@@ -154,14 +155,14 @@
 				</div> -->
 
 				<!-- </div> -->
-				<div style="display: flex">
-					<div id="region-legend">
-						<span id="legend-title" style="color: black; font-weight: bold">Hover on a region</span>
+				<div style="display: flex; margin-top: 15px">
+					<div id="region-legend" style="margin-right: 10px">
+						<span id="legend-title" style="color: black; font-weight: bold">Step 2: hover on a region</span>
 					</div>
-					<svg id="scatter" height="400" width="1000" style="border: 1px solid black"></svg>
+					<svg id="scatter" height="435" width="970" style="border: 1px solid black"></svg>
 				</div>
 				<div class="slidecontainer">
-					<label for="year-select-label2" id="year" style="color: black; font-weight: bold">Select Year: </label><br />
+					<label for="year-select-label2" id="year" style="color: black; font-weight: bold">Step 3: select a year </label><br />
 					<input type="range" min="2015" max="2019" value="2017" class="slider" id="sliderRange" />
 					Year: <span id="sliderYear"></span>
 				</div>
